@@ -1,6 +1,6 @@
 # Mandatory Rules (Priority 1)
 
-Read these before doing anything else. They are non-negotiable and point to the detailed contracts that follow.
+Read these before doing anything else. They are non-negotiable and point to the detailed contracts that follow. If a rule cites stack-specific tools (e.g., Java/Spring commands), use the equivalent for your stack or define a local override; do not ignore the intent of the rule.
 
 1. **Prioritize security**: Protect secrets, avoid command injection, validate inputs (see `100_10_security.md`).
 2. **Follow the collaborative workflow**: Move through the defined phases from implementation to PR (see `110_10_collaborative-workflow.md`).
