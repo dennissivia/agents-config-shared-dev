@@ -24,6 +24,8 @@ These rules describe how to use git safely and predictably in this workflow.
 
 ## Git Safety
 - Never use `git push -f` / `--force` unless explicitly allowed by the user.
+- Never delete tracked or untracked content unless the user explicitly requests the removal.
+- If asked to remove content from git history, keep the files on disk (or ask for confirmation before deleting anything locally) and only scrub the history.
 - Do not rewrite history (rebase, amend, reset) without explicit permission.
 - Do not create, delete, or switch branches silently; include this in the proposed plan.
 - Always verify:
