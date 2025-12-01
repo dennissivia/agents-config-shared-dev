@@ -1,6 +1,6 @@
 # Development Workflow
 
-This file is the entrypoint for development work. Load it after global rules (`01–09`), then apply the stage files in numeric order (`20–69`). This workflow ensures clarity, predictability, and safe collaboration. All tasks follow these phases unless explicitly overridden.
+This file is the entrypoint for development work. If a separate global package is present (`01–09`), load that first, then apply this workflow and the stage files in numeric order (`20–69`). This workflow ensures clarity, predictability, and safe collaboration. All tasks follow these phases unless explicitly overridden.
 
 ---
 
