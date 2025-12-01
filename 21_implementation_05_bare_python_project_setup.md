@@ -1,6 +1,6 @@
 # Project Setup (Python CLI projects)
 
-These rules apply when initializing a new Python-based CLI project and align with the global development workflow.
+These rules apply when initializing a new Python-based CLI project and align with the development workflow in this package.
 
 - Follow the multi-phase workflow: plan the setup, then validate a minimal runnable skeleton before further features.
 - Use the latest supported Python, manage deps with `uv`, and enforce lint/format via `ruff`; install tools via package managers only (no curl|bash scripts).
