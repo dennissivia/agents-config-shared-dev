@@ -8,6 +8,53 @@
 
 Pull requests are the final narrative of a change set. They should be cohesive, reviewable, and aligned with the commit history.
 
+## PR Size — Soft Limits
+
+PRs must be reviewable. Large PRs degrade review quality, obscure intent, and lose commit narrative on squash merge.
+
+### Soft limit: ~2,000 lines of total churn
+
+- **Churn** = insertions + deletions (the `git diff --stat` total).
+- Tests typically dominate churn (50–60%). That's expected and healthy — test code is scannable. The real review burden is production code.
+- Seed data, migrations, and docs are low-signal churn — they inflate numbers but don't add review complexity.
+- When a PR exceeds ~2,000 lines, it's a signal to ask: "Could this have been two vertical slices?"
+
+### Vertical slices
+
+A **vertical slice** is a coherent, deployable unit of work that cuts across layers:
+
+- Backend: API contract + service + persistence + tests
+- Frontend: page/component + hook + API client + tests
+- Supporting: migration, seed data, docs as needed
+
+Each slice should be independently mergeable and leave the application in a working state. A slice does not need to deliver the complete feature — it delivers one usable piece.
+
+**Examples of good slices for a "Checklists" feature:**
+- PR 1: Checklist CRUD API + backend tests
+- PR 2: Checklists overview page + frontend tests
+- PR 3: Checklist items (add/edit/complete/delete) across both stacks
+- PR 4: Seed data + E2E tests + QA cleanup
+
+Each stays under ~2,000 lines. Each is reviewable in one sitting.
+
+### Squash merge context
+
+This project uses **squash merge** for PRs. Every PR becomes a single commit on `main`. This means:
+
+- Individual commit messages within a PR are lost on merge.
+- The PR description becomes the permanent record.
+- Prefer **fewer, well-scoped commits per PR** (1–3 is ideal).
+- The investment in high-quality commit messages pays off most when each commit is its own PR.
+
+### When to exceed the limit
+
+Exceeding ~2,000 lines is acceptable when:
+- Splitting would create broken intermediate states.
+- The churn is dominated by generated code, migrations, or seed data.
+- The user explicitly decides to ship a larger PR.
+
+The limit is a **checkpoint**, not a blocker. The agent must surface it; the user decides.
+
 ## Creating PRs
 - **Single-commit PR**:
   - Use `gh pr create --fill` to auto-populate from the commit message.

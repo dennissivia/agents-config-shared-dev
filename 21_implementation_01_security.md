@@ -26,3 +26,117 @@ Security rationale:
 - Quote variables properly (use `"$VAR"`).
 - Validate or sanitize any user-provided input before using it in shell commands.
 - Prefer tool parameters instead of shell interpolation when possible.
+- **NEVER use inline strings with special shell characters** (`!`, `$`, `` ` ``, `\`, `"`, `'`, `*`, `?`, `[`, `]`, `{`, `}`, `(`, `)`, `<`, `>`, `|`, `&`, `;`, `#`) in command arguments.
+- **Always use temporary files for complex or multi-line text** (commit messages, config files, scripts).
+- For git commits: use `git commit -F <tempfile>` instead of `git commit -m "..."`.
+
+**Rationale**: Shell interpreters (bash, zsh, etc.) treat many characters specially (history expansion, variable substitution, globbing, command substitution). Using temporary files avoids all shell parsing issues and buffer limits.
+
+## Temporary Files — Safe Patterns
+
+**CRITICAL: Always use `mktemp` or date-based unique names to avoid file-exists errors.**
+
+### Always Use mktemp (Recommended)
+
+```bash
+# GOOD: Safe, unique temp file (standard approach)
+TEMP_FILE=$(mktemp)
+cat >| "$TEMP_FILE" << 'EOF'
+content
+EOF
+process_file "$TEMP_FILE"
+rm "$TEMP_FILE"
+
+# GOOD: Temp file with custom template
+TEMP_FILE=$(mktemp /tmp/spring-boot.XXXXXX.log)
+./mvnw spring-boot:run > "$TEMP_FILE" 2>&1 &
+
+# GOOD: Temp directory
+TEMP_DIR=$(mktemp -d /tmp/build.XXXXXX)
+```
+
+### Alternative: Date-Based Unique Names
+
+```bash
+# GOOD: Timestamp-based unique filename
+TEMP_FILE="/tmp/commit-msg-$(date +%Y%m%d-%H%M%S-%N).txt"
+cat >| "$TEMP_FILE" << 'EOF'
+Commit message content
+EOF
+
+# GOOD: Process ID + timestamp
+TEMP_FILE="/tmp/build-$$-$(date +%s).log"
+```
+
+### Shell Compatibility: zsh
+
+**When writing to temp files in zsh:**
+
+```bash
+# GOOD: Use >| to force overwrite (zsh-safe)
+MSGFILE=$(mktemp)
+cat >| "$MSGFILE" << 'EOF'
+content
+EOF
+git commit -F "$MSGFILE"
+rm "$MSGFILE"
+
+# GOOD: Use > with unique mktemp file (no conflicts possible)
+TEMP_FILE=$(mktemp)
+cat > "$TEMP_FILE" << 'EOF'
+content
+EOF
+
+# BAD: Plain > fails in zsh if file exists (noclobber is default)
+cat > /tmp/fixed-name.txt << 'EOF'  # ERROR in zsh
+content
+EOF
+```
+
+**Why:** zsh has `noclobber` enabled by default, preventing `>` from overwriting existing files. Use `>|` to force overwrite, or better: use `mktemp` to guarantee unique filenames.
+
+### Git Commit Messages Example
+
+```bash
+# GOOD: Safe commit message handling
+MSGFILE=$(mktemp)
+cat >| "$MSGFILE" << 'EOF'
+✨ Your commit message
+
+## Summary
+...
+EOF
+git commit -F "$MSGFILE"
+rm "$MSGFILE"
+```
+
+### Never Do This
+
+```bash
+# BAD: Hardcoded name causes conflicts
+./mvnw spring-boot:run > /tmp/spring-boot.log 2>&1 &
+
+# BAD: Fails if file exists (especially in zsh)
+cat > /tmp/commit-msg.txt << EOF
+...
+EOF
+
+# BAD: Reusing same temp file in multiple commands
+cat > /tmp/msg.txt << EOF
+first message
+EOF
+git commit -F /tmp/msg.txt
+cat > /tmp/msg.txt << EOF  # May fail!
+second message
+EOF
+```
+
+### Cleanup
+
+```bash
+# GOOD: Remove temp file when done (unlink is safer than rm: single file only, no dirs, no globs)
+unlink "$TEMP_FILE"
+
+# GOOD: Auto-cleanup with trap
+trap "unlink $TEMP_FILE" EXIT
+```
