@@ -27,6 +27,14 @@ These rules describe how to use git safely and predictably in this workflow.
 2. **Announce completion**: "Finished [section name]. All [X] tasks complete. Should I commit this?"
 3. **Wait for user confirmation** to proceed with commit.
 4. **Stage the files**: `git add <files>` (only files related to this logical unit).
+   - **Already-staged deletions**: Files removed earlier via `git rm` are already in the index.
+     Do not include them in the `git add` command — they will cause `pathspec did not match` errors.
+   - **Ignored files**: Files that were `git rm --cached` and then gitignored are already staged
+     for deletion. Do not re-add them — git will refuse with an "ignored" error and abort the
+     entire `git add` command (nothing gets staged).
+   - **Before running `git add`**: Check `git status --short` first. Any file with a status letter
+     in the **first column** (e.g., `D`, `M`, `A`) is already staged. Only `git add` files that
+     have status letters in the **second column** (unstaged) or `??` (untracked).
 5. **Verify staged files**: Run `git status --short` and confirm all intended files are staged (status `A` or `M` in first column).
    - If files are missing or unexpected files are staged, fix staging before proceeding.
    - **CRITICAL**: Never run `git commit` without verifying staged files first.
@@ -34,8 +42,22 @@ These rules describe how to use git safely and predictably in this workflow.
    - **CRITICAL**: Always propose the commit message as rendered Markdown in chat first. Only construct shell commands after user approval.
    - **CRITICAL**: Always use temporary files for commit messages (see [Temporary Files](#temporary-files-for-commit-messages)).
    - Never use hardcoded paths like `/tmp/commit-msg.txt` - use `mktemp` or date-based unique names.
-7. **Stop and inform**: "Committed locally. Ready to continue with next section, or would you like me to push/create a PR?"
-8. **Only when explicitly instructed**:
+7. **Verify the commit succeeded**: Run this exact command after every `git commit`:
+   ```bash
+   echo "HEAD=$(git rev-parse --short HEAD)" && git --no-pager show HEAD --stat --format="commit %H%nDate: %ai%nSubject: %s" | cat
+   ```
+   - The `echo` prefix guarantees a plain ASCII first line, avoiding emoji rendering issues
+     that can make `git log` output appear empty.
+   - Check that:
+     - The hash is **different** from the pre-commit HEAD (compare to what `git log` showed before staging).
+     - The subject line matches the intended commit message.
+     - The file list matches what was staged.
+   - **If the hash is the same as before**: the commit silently failed. Check `git status` for
+     remaining staged files and investigate.
+   - **Do not run multiple exploratory git commands** trying to figure out what happened. One
+     verification command is enough. If it's unclear, ask the user.
+8. **Stop and inform**: "Committed locally. Ready to continue with next section, or would you like me to push/create a PR?"
+9. **Only when explicitly instructed**:
    - Push: `git push` to current feature branch (avoid force pushes).
    - Create PR: Follow pull request rules.
 
