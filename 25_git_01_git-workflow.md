@@ -7,6 +7,38 @@ These rules describe how to use git safely and predictably in this workflow.
 - Default to feature branches for all work (e.g., `feature/<description>`, `fix/<description>`).
 - The agent may choose a reasonable branch name by itself; do **not** pull the user in just to decide names.
 
+### Branch Naming Style
+
+- Prefer branch names that describe the **outcome or capability**, not just the
+  milestone or project-management label.
+- Good branch names help reviewers understand the purpose without opening the diff.
+- Milestone context is acceptable only when it adds useful clarity.
+
+Good:
+
+- `feature/passkey-auth-ui`
+- `feature/onboarding-exit-paths`
+- `tech/test-data-builder-cleanup`
+
+Acceptable when milestone context genuinely helps:
+
+- `feature/m3-2-passkey-auth-ui`
+
+Avoid names that are mostly tracking labels without a clear outcome:
+
+- `feature/m3-2`
+- `work/increment-5`
+- `feature/task-group-7`
+
+Use safe branch-name characters:
+
+- lowercase letters
+- numbers
+- hyphens
+- optional `/` for one level of grouping
+
+Avoid special characters that require shell escaping.
+
 ## Commit Granularity — Per Logical Unit
 - Commit when completing a **logical unit of work** (story-sized), not after every small change.
 - For planned work (implementation plans, checklists): commit when completing an entire **subheading section** with all its nested tasks.

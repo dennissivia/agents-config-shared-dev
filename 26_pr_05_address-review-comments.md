@@ -223,9 +223,73 @@ If any quality gate fails, fix it before proceeding. Do not commit with failing 
 
 ---
 
+## Phase 4.5: Post-Fix Outcome And Escape Analysis
+
+After the approved fixes are implemented and the quality gates are green, but
+before any commit proposal:
+
+1. present the fix outcome,
+2. state which review comments were addressed,
+3. report the gate results,
+4. analyze **how these issues escaped earlier phases**,
+5. suggest how to avoid the same miss in the future.
+
+This analysis is mandatory even if a root-cause or safeguard discussion already
+happened earlier in Phase 3.5. The pre-fix analysis is the hypothesis; this
+post-fix step confirms what was actually missing after seeing the real fix.
+
+### Minimum questions
+
+- Was this primarily a missing test?
+- Was this primarily a missing rule or unclear rule?
+- Was this primarily a self-review miss?
+- Did the validation handoff miss an important signal?
+- Did the implementation cross a boundary that should have had stronger typing,
+  cancellation, validation, or abstraction?
+
+### Presentation format
+
+Present a compact table:
+
+| # | Review Item | What Escaped | Proposed Prevention | Scope |
+|---|-------------|--------------|---------------------|-------|
+
+Then summarize:
+
+- what should be fixed now as follow-up safeguards,
+- what can be deferred,
+- and whether the safeguards are code/tests, rules, ADRs, or docs.
+
+Pause for user direction before changing docs or rules.
+
+---
+
+## Phase 4.6: Safeguard Follow-Up
+
+After the user reviews the post-fix escape analysis:
+
+- apply any approved follow-up safeguards,
+- rerun the scope-matching quality gates if those follow-ups change tracked files,
+- present the updated outcome again if the follow-up materially changed the diff.
+
+Typical safeguard follow-ups:
+
+- new or expanded regression tests,
+- `.agents/` rule updates,
+- ADR updates,
+- README or workflow documentation updates.
+
+---
+
 ## Phase 5: Commit
 
 Use the standard structured commit template (see `25_git_02_commit-messages.md`).
+
+Before proposing the commit:
+
+1. ensure Phase 4.5 has been presented,
+2. ensure any approved Phase 4.6 follow-ups are complete,
+3. ensure the user has had a chance to confirm the final fix set.
 
 The commit **must**:
 
@@ -239,35 +303,44 @@ The commit **must**:
 
 ## Phase 6: Close Addressed Comments
 
-After each commit, reply to every comment that was fixed and mark threads as resolved.
+After the user approves the commit message and git push has happened, reply to
+every fixed comment and resolve threads.
 
-### Reply to Each Comment
+### Reply Messages
 
-```bash
-gh api repos/{owner}/{repo}/pulls/{pr_number}/comments/{comment_id}/replies \
-  --method POST \
-  --field body="Fixed in <short-hash>" | cat
-```
+- **Fixed**: `Fixed in <short-hash>`
+- **Won't fix**: `Won't fix`
+
+No justification, description, or internal reasoning in replies. Keep them minimal.
 
 Get the short hash with `git rev-parse --short HEAD`.
 
-### Resolve the Thread
+### Reply Command
 
-GitHub does not expose thread resolution via the REST API for review comments. Use the
-GitHub GraphQL API:
+The `/replies` sub-endpoint does not work. Use the PR comments endpoint with
+`in_reply_to` to reply to an existing comment:
 
 ```bash
-gh api graphql -f query='
-mutation {
-  resolveReviewThread(input: { threadId: "PRT_..." }) {
-    thread { isResolved }
-  }
-}
-'
+# Reply to a single comment
+gh api "repos/{owner}/{repo}/pulls/{pr_number}/comments" \
+  --method POST \
+  --field body="Fixed in <short-hash>" \
+  --field "in_reply_to=<comment_id>" 2>&1 | cat
+
+# Batch reply to multiple comments
+for id in <id1> <id2> <id3>; do
+  gh api "repos/{owner}/{repo}/pulls/{pr_number}/comments" \
+    --method POST \
+    --field body="Fixed in <short-hash>" \
+    --field "in_reply_to=$id" 2>&1 | cat
+done
 ```
 
-**Practical note**: Thread IDs (`PRT_...`) are not returned by the REST comments
-endpoint. They require a separate GraphQL query:
+### Resolve Threads via GraphQL
+
+GitHub does not expose thread resolution via the REST API. Use GraphQL.
+
+**Step 1: Fetch thread IDs** (match `databaseId` to REST comment `id`):
 
 ```bash
 gh api graphql -f query='
@@ -279,21 +352,30 @@ gh api graphql -f query='
           id
           isResolved
           comments(first: 1) {
-            nodes { databaseId body path line }
+            nodes { databaseId }
           }
         }
       }
     }
   }
 }
-' | cat
+' 2>&1 | cat
 ```
 
-Match `databaseId` from GraphQL to the REST comment `id` to find the thread ID.
+**Step 2: Resolve each thread:**
 
-**Fallback**: If GraphQL resolution is impractical, replying with `Fixed in <hash>` on
-the REST comment is sufficient to communicate resolution. The human reviewer can close
-the thread in the GitHub UI.
+```bash
+gh api graphql -f query='
+mutation {
+  resolveReviewThread(input: { threadId: "PRT_..." }) {
+    thread { isResolved }
+  }
+}
+' 2>&1 | cat
+```
+
+**Fallback**: If GraphQL resolution is impractical, the reply alone is sufficient.
+The human reviewer can close threads in the GitHub UI.
 
 ---
 
@@ -301,13 +383,16 @@ the thread in the GitHub UI.
 
 For every comment marked **Won't do / Not applicable** in the triage table:
 
-1. Post a brief reply explaining why via REST:
-   ```bash
-   gh api repos/{owner}/{repo}/pulls/{pr_number}/comments/{comment_id}/replies \
-     --method POST \
-     --field body="Won't fix: <reason — e.g., contradicts ADR-0008, or: Enum approach is intentional per project conventions>" | cat
-   ```
-2. This is done **after all fixes are committed**, in a single pass.
+1. Post a reply via the same command used in Phase 6, with body `Won't fix`.
+2. No justification or internal reasoning in the reply.
+3. This is done **after all fixes are committed**, in a single pass.
+
+```bash
+gh api "repos/{owner}/{repo}/pulls/{pr_number}/comments" \
+  --method POST \
+  --field body="Won't fix" \
+  --field "in_reply_to=<comment_id>" 2>&1 | cat
+```
 
 ---
 

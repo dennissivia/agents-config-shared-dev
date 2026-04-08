@@ -56,6 +56,12 @@ Exceeding ~2,000 lines is acceptable when:
 The limit is a **checkpoint**, not a blocker. The agent must surface it; the user decides.
 
 ## Creating PRs
+- Prefer the GitHub CLI (`gh`) for GitHub interactions such as PR creation, PR editing, and repo metadata lookup unless the user explicitly wants a different tool.
+- When the user explicitly approves the publish flow, create a **normal PR by default**.
+- Use a **draft PR** only when:
+  - the user explicitly asks for draft,
+  - the branch is intentionally incomplete,
+  - or there is a known blocker the user wants visible before final review.
 - **Single-commit PR**:
   - Use `gh pr create --fill` to auto-populate from the commit message.
 - **Multi-commit PR**:

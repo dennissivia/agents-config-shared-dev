@@ -40,6 +40,8 @@ The commit message should tell the story behind the change, not narrate the chan
 
 1. **Always start with a fitting emoji.**
    It visually conveys the type of change and increases scan-ability.
+   Choose the emoji by semantic fit. Do not default to the same emoji when a
+   more accurate one exists for the actual change.
 
 2. **Write for human readers**—reviewers today and future contributors tomorrow.
    The message must be easy to understand without reading the diff or knowing the conversation.
@@ -85,6 +87,52 @@ A high-quality commit message body **must**:
 - Stand on its own—someone reading the commit without the PR or conversation should understand the intent.
 
 Low-quality, non-narrative commit messages must never be produced.
+
+---
+
+## Commit Subject Tense
+
+Use **imperative / present-tense** commit subjects.
+
+Good:
+
+- `add passkey sign-in to auth page`
+- `fix passkey cancellation handling`
+- `document repository commit prefixes`
+
+Bad:
+
+- `added passkey sign-in to auth page`
+- `fixed passkey cancellation handling`
+- `documented repository commit prefixes`
+
+The subject should read like an instruction to the codebase:
+
+- `add`, not `added`
+- `fix`, not `fixed`
+- `document`, not `documented`
+
+This guidance is compatible with many common Git recommendations and should be
+followed unless a project defines a stricter local convention.
+
+---
+
+## Emoji Fit
+
+The emoji should match the change category rather than being chosen by habit.
+
+Examples:
+
+- `🔐` auth, security, passkeys
+- `✨` new feature or new capability
+- `🛠️` technical/internal improvement
+- `📝` docs, ADR, README, rules
+- `🐛` bug fix
+- `♻️` refactor
+- `✅` test-focused or validation-focused work
+
+The goal is not novelty. The goal is to avoid repetitive, low-signal emoji use
+when a more accurate symbol exists.
 
 ---
 

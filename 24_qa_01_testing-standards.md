@@ -27,11 +27,27 @@ Testing ensures correctness, protects refactoring, and prevents regressions.
   - end-to-end or system tests where applicable
 - All tests must pass before merging or asking for review.
 
+## Test Reporting
+
+- When reporting test outcomes to the human, include skipped / ignored / disabled / pending counts when the test runner exposes them.
+- If multiple test levels are covered by one wrapper command, report the covered levels and the single source of truth rather than rerunning the same tests for cosmetic separation.
+- If a project includes accessibility checks inside an E2E suite, report accessibility as a distinct dimension in the summary even though it shares the same wrapper run.
+
 ## Test Organization
 - Use descriptive test names that explain the intent and expected behavior.
 - Group related tests logically and share setup/fixtures where appropriate.
 - Prefer clear, minimal setup over deeply nested or overly clever test utilities.
 - Extract constants for repeated test data to avoid duplication and improve readability.
+
+## Test Quality
+- Test quality should aim to match production code quality. Tests are maintained code, not disposable scaffolding.
+- Keep unit tests focused on one behavior and assert only what is necessary for that behavior.
+- Avoid redundant assertions when an earlier assertion already proves the same outcome.
+- In more complex integration-style tests, prefer additional step-by-step assertions when they improve failure diagnosis.
+- If setup is noisy or repeated, extract meaningful helpers, builders, fixture wrappers, or assertion helpers instead of copying setup across tests.
+- Only extract helpers when they improve readability and reuse; do not hide important behavior behind overly generic abstractions.
+- If a test is noisy because a well-established community tool would improve setup, assertions, or failure reporting, suggest that tool to the user before introducing it.
+- Prefer readable expected-value setup and explicit failure messages over clever but opaque test code.
 
 ## Test Coverage Goals
 - Unit tests for core business logic (services, domain functions, core modules).

@@ -24,24 +24,45 @@ These rules extend the generic testing standards for Java / Spring Boot projects
 - Mark slow or environment-dependent tests with `@Tag("integration")` to keep unit runs fast.
 - Quality gates require the full suite (unit + integration) before any git action.
 
-## How to Run Tests
+## Test Data Builders and Fixture Wrappers
 
-### Default Commands
-- Fast/unit-only (excludes `@Tag("integration")` via the Maven property):
+### Canonical Model
+- Use builders as the canonical way to construct test data for domain entities and DTOs.
+- Builders should create internally consistent objects with sensible defaults and explicit override methods.
+- Builders remain the lowest-level composition primitive; they should model the real domain shape rather than ad-hoc test shortcuts.
 
-  ```bash
-  ./mvnw test
-  ```
+### Wrapper Fixtures on Top of Builders
+- When tests repeatedly need a realistic object graph (for example account -> member -> checklist -> item), add fixture wrappers or factory helpers on top of the builders.
+- These wrappers should hide repetitive dependency wiring while still using builders internally.
+- The goal is simple `@BeforeEach` setup and one-call access to valid, production-shaped test data.
 
-- Full suite (unit + integration) with environment/services running:
+### Consistency Requirements
+- Test data must preserve the same foreign-key and ownership consistency as production data.
+- If a test creates a checklist, the related account/member/identity graph should be valid and reachable through the fixture path rather than invented ad-hoc IDs.
+- Prefer saved parent entities and real generated IDs in integration tests.
+- In unit tests, prefer rehydration/full-state constructors over mutating private fields.
 
-  ```bash
-  ./bin/run-tests-local.bash
-  # or, after services are up:
-  ./mvnw clean test -Dexcluded.groups=""
-  ```
+### Override Strategy
+- Builders provide defaults for everything.
+- Wrapper fixtures should expose the small set of parameters commonly varied by tests.
+- Add more overloads / helper variants incrementally when a new repeated need appears; do not pre-generalize every possible option up front.
+- If the wrapper becomes too specialized for broad reuse, keep it local to the test file or package instead of forcing it into a global helper.
+
+### Reflection Policy
+- Do not use reflection-based test setup (`setAccessible`, direct field mutation, `ReflectionTestUtils`) when builders, fixture wrappers, save paths, or public rehydration constructors can express the same state.
+- Reflection in tests is a last resort for legacy code only, and any new use requires explicit justification.
+- If reflection appears repeatedly, that is a signal to add or improve builders/fixture wrappers instead.
+
+## Running the Suites
+
+- The repository's **local validation rules** define the exact commands.
+- A typical setup has:
+  - a fast/unit-focused suite
+  - a full suite that includes integration tests
+- If the repository provides a wrapper script for the full suite in `bin/` or `scripts/`,
+  local rules may prefer that wrapper over raw Maven commands.
 
 ### Environment for Integration Tests
-- Ensure `.env` is loaded (e.g., `set -o allexport && source .env && set +o allexport`).
-- Ensure `docker compose up -d --wait` is running so dependencies (e.g., Postgres) are available.
-- `./bin/run-tests-local.bash` handles both of these before running the full suite.
+- Integration tests use **Testcontainers** — no external services needed.
+- Testcontainers automatically starts a PostgreSQL container per test run.
+- Local rules should document any project-specific full-suite wrapper or flags.
