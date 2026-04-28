@@ -86,6 +86,7 @@ The limit is a **checkpoint**, not a blocker. The agent must surface it; the use
 - The branch is based on the appropriate target branch (typically `main`) and up to date as agreed for the project.
 
 ## Safety Rules
+- **Never merge a PR** — merging is always a human action. The agent's job ends at creating the PR, addressing review feedback, and resolving threads.
 - Do not open a PR with known failing tests or lint issues unless the PR is explicitly about fixing them—and call this out clearly.
 - Do not force push (`--force`) or perform history rewrites on the PR branch unless explicitly instructed by the user.
 - If CI fails:
@@ -98,6 +99,26 @@ The limit is a **checkpoint**, not a blocker. The agent must surface it; the use
   - Update the PR description if the approach changes during development.
   - Remove references to experiments or directions that were abandoned.
 - When adding new commits that change behavior, re-check whether the PR description needs updating.
+
+### Additional Commits On An Existing PR
+
+Every time the agent is preparing an additional commit on an already-open PR, it must review the
+current PR body before proposing the commit message.
+
+The agent must ask:
+
+- Did this new commit add a major user-facing change, technical capability, risk, or accepted
+  limitation that is not yet reflected in the PR body?
+- Did the implementation direction change enough that an existing PR bullet is now misleading or
+  incomplete?
+
+If the answer is yes, the agent must include both items in the **same approval handover**:
+
+1. the proposed commit message
+2. a compact recommendation for what to add or change in the PR body
+
+Do not wait until after the commit to notice PR-body drift. The user should be able to approve the
+pending commit and the matching PR-body adjustment together in one compact review step.
 
 ## Communication
 - After creating or updating a PR, share the PR link and a short summary:

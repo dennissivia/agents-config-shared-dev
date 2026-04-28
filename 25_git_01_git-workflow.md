@@ -48,11 +48,24 @@ Avoid special characters that require shell escaping.
 - **Before committing**, announce completion and ask: "We finished [section/feature]. Should I commit this now?"
 - Keep related changes together; split unrelated changes into separate commits.
 
-## Never Auto-Push or Auto-PR
+## Never Auto-Push, Auto-PR, or Auto-Merge
 - **Never push** commits unless user explicitly requests "push" or "create PR".
 - **Never create PR** unless user explicitly requests it.
+- **Never merge a PR** — merging is always a human action.
 - After committing, inform user: "Committed locally. Would you like me to push or create a PR?"
 - This avoids unnecessary force pushes, rebases, and squashes by allowing multiple commits to accumulate before pushing.
+
+**Exception — review-fix commits**: When the commit addresses PR review feedback (Phase 5 of `26_pr_05_address-review-comments.md`), the user's approval of the commit message also authorizes the push. Do not ask again. Push immediately, then proceed through Phase 6 (reply + resolve threads) and poll for new review feedback. The "Committed locally. Would you like me to push?" pattern does **not** apply to review-fix commits.
+
+The two distinct flows:
+- **Review-fix flow**: `commit (user approves message) → push → reply → resolve threads → poll` — automatic after commit message approval
+- **Opening PR flow**: `commit → ask user → push → create PR` — user approval required before push
+
+## Proactive Process Continuation
+- After completing a task — including addressing review feedback and resolving threads — do not ask the user what to do next.
+- Re-read `AGENTS.md` and the active workflow phase to determine the correct next step, then proceed with it.
+- Only hand back to the user at a defined hard-stop point (user approval required, destructive action, ambiguous requirement) or at the end of a workflow phase.
+- A question like "Would you like to merge?" is always wrong — the agent never merges and the next step is defined by the workflow, not by asking.
 
 ## Git Operations Flow
 1. **Work through planned tasks** until reaching a logical completion point (e.g., entire subheading done).
@@ -67,6 +80,14 @@ Avoid special characters that require shell escaping.
    - **Before running `git add`**: Check `git status --short` first. Any file with a status letter
      in the **first column** (e.g., `D`, `M`, `A`) is already staged. Only `git add` files that
      have status letters in the **second column** (unstaged) or `??` (untracked).
+   - **CRITICAL — only stage files that appear in `git status` output**: Never include a file in
+     `git add` if it is absent from `git status --short`. Absent means one of:
+       - gitignored (e.g. compiled artifacts, build output, `.gitignore`-listed paths)
+       - a submodule path tracked by a nested git repo
+       - a path that was already cleaned or deleted
+     If git refuses to stage a file, **accept the refusal**. Investigate why the file is absent;
+     do not use `git add -f` / `--force` to override the refusal. A git refusal is a signal, not
+     an obstacle.
 5. **Verify staged files**: Run `git status --short` and confirm all intended files are staged (status `A` or `M` in first column).
    - If files are missing or unexpected files are staged, fix staging before proceeding.
    - **CRITICAL**: Never run `git commit` without verifying staged files first.
@@ -94,7 +115,15 @@ Avoid special characters that require shell escaping.
    - Create PR: Follow pull request rules.
 
 ## Git Safety
-- Never use `git push -f` / `--force` unless explicitly allowed by the user.
+- **Force flags are categorically forbidden** — never use `-f` / `--force` on any git subcommand
+  (`add`, `push`, `checkout`, `branch`, `reset`, `clean`, `merge`, etc.) unless the user
+  explicitly requests it **in that conversation turn**. This includes:
+  - `git add -f` — do not force-stage gitignored or refused files
+  - `git push --force` / `--force-with-lease` — do not force-push without user approval
+  - `git checkout -f` — do not force discard local changes
+  - `git branch -D` — do not force-delete a branch (use `-d`; only escalate if user approves)
+  - `git clean -f` — do not force-remove untracked files
+  When in doubt, treat any `-f` flag as a destructive operation requiring confirmation.
 - Never delete tracked or untracked content unless the user explicitly requests the removal.
 - If asked to remove content from git history, keep the files on disk (or ask for confirmation before deleting anything locally) and only scrub the history.
 - Do not rewrite history (rebase, amend, reset) without explicit permission.

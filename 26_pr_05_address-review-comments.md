@@ -297,7 +297,13 @@ The commit **must**:
   `Addresses PR review comments: [ID-123, ID-124] — null check, variable rename`
 - List addressed comment IDs in the `## Summary` or `## Key changes` section.
 
-**Do not push** unless the user explicitly asks.
+**Review-fix push is automatic**: once the user approves the commit message, push immediately without asking again. The "Committed locally. Would you like me to push?" pattern does **not** apply to review-fix commits. After the commit message is approved:
+
+1. Push the branch.
+2. Proceed directly to Phase 6 (reply to comments + resolve threads).
+3. Then poll for new automated review feedback (see `26_pr_05_review-polling-and-auto-triage.md`).
+
+No additional user handover is needed between commit approval and poll completion.
 
 ---
 

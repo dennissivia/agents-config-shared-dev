@@ -12,6 +12,15 @@ This file is the entrypoint for development work. If a separate global package i
 ---
 
 ## Phase 1: Planning
+
+When starting a new release or significant increment, run the **Increment Kickoff
+Protocol** (`20_analysis_03_increment-kickoff-protocol.md`) before this phase. The
+kickoff phases (Feature Scope Brief → Architecture Proposal → Increment Breakdown →
+Agent Plan) complete before the implementation workflow continues.
+
+For work already inside a planned increment, proceed from the Agent Plan directly into
+implementation.
+
 - Identify the goal, scope, risks, dependencies, and assumptions.
 - Outline the steps required to deliver the task.
 - Surface uncertainties early.
