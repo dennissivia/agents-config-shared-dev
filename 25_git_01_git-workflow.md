@@ -48,6 +48,24 @@ Avoid special characters that require shell escaping.
 - **Before committing**, announce completion and ask: "We finished [section/feature]. Should I commit this now?"
 - Keep related changes together; split unrelated changes into separate commits.
 
+## Version Maintenance For Versioned Increments
+
+- When work belongs to a named release or increment with an explicit version string
+  (for example `V0.7`, `v1.2`, or a similarly versioned release branch/plan),
+  treat frontend/backend version metadata as part of the release artifact rather
+  than as incidental package metadata.
+- On the **last PR of that increment**, before the final commit/PR handoff, update
+  the version for each application surface changed by the increment:
+  - frontend: `frontend/package.json`
+  - backend: `backend/pom.xml`
+- Do not bump versions at the start of the increment or on intermediate PRs unless
+  the user explicitly wants earlier version visibility.
+- Only bump the surfaces actually touched by the increment. If the increment is
+  backend-only, do not bump the frontend just for symmetry.
+- The agent must call out the planned version bump in the pre-commit / pre-PR
+  handoff for the final PR of the increment so the user can verify the target
+  version before git actions.
+
 ## Never Auto-Push, Auto-PR, or Auto-Merge
 - **Never push** commits unless user explicitly requests "push" or "create PR".
 - **Never create PR** unless user explicitly requests it.
@@ -155,15 +173,38 @@ This check happens **once** when resuming or starting new work — not after eve
 ## Post-PR Merge Workflow
 When the user states that they merged the PR and want to move on:
 
-1. **Checkout main branch**: `git checkout main`
-2. **Fetch remote changes**: `git fetch origin`
-3. **Pull changes**: `git pull origin main`
-4. **HARD STOP on conflicts**: If merge conflicts occur, stop immediately and ask the user for resolution instructions. Do not attempt to resolve conflicts automatically.
-5. **Verify merge**: Ensure all changes from the feature branch are present in main
-6. **Delete local feature branch**: 
-   - Try `git branch -d <feature-branch>` first (safe delete)
-   - If it fails and you've confirmed changes are merged, use `git branch -D <feature-branch>` (force delete)
-7. **Clean slate**: You now have a clean `main` branch ready for the next feature branch
+1. **Check working tree first**:
+   - If the working tree is not clean, stash **everything currently changed** before switching
+     branches.
+   - Use a named stash message so the purpose is obvious later.
+   - Prefer one stash command for the current cleanup pass whenever practical.
+2. **Checkout main branch**: `git checkout main`
+3. **Fetch remote changes**: `git fetch origin`
+4. **Update main**:
+   - Prefer a clean fast-forward update when possible.
+   - If the repository workflow or current state requires it, use a rebase-based pull for main.
+   - **HARD STOP on conflicts**: if update conflicts occur, stop immediately and ask the user.
+     Do not resolve them automatically.
+5. **Delete local feature branch**:
+   - Try `git branch -d <feature-branch>` first.
+   - If it fails, assume a squash merge is likely before assuming something is wrong.
+   - Verify the feature branch content is already contained in main by comparing the branch tips
+     (for example `git diff --stat main..<feature-branch>` and confirm the diff is empty).
+   - If the changes are present in main, use `git branch -D <feature-branch>` and continue.
+   - If the changes are **not** present, stop and ask the user.
+6. **Restore stashed local work**:
+   - Only restore a stash if **this cleanup flow created one**. If you did not create a cleanup
+     stash in the current post-merge pass, do not pop any stash.
+   - Before restoring, verify the candidate stash is the one just created for this cleanup flow by
+     checking its message, creation time, and expected file scope.
+   - Do not pop an older unrelated stash just because one exists locally.
+   - If you created a cleanup stash, restore it with `git stash pop`, not `git stash apply`.
+   - If multiple named stashes were created as part of the same cleanup flow, pop only those
+     explicitly intended stashes after the branch update and deletion succeed.
+   - After each pop, verify the restored files still make sense on top of current `main` before
+     continuing.
+7. **Clean slate**: main is updated, the merged feature branch is removed locally, and any stashed
+   local work is restored on top of current main.
 
 **Next steps:**
 - Wait for user to describe the next task

@@ -31,6 +31,27 @@ increment or commit boundary.
 
 ---
 
+## Phase 0: Codebase and Documentation Preparation
+
+Before producing any scope brief, architecture proposal, or plan, complete the
+preparation steps defined in `20_analysis_02_implementation-plan-standards.md` Rule 0:
+
+1. **Read design documentation** — all technical design docs and ADRs relevant to the
+   area being planned, including any that cover error handling, type safety, or test
+   architecture even when the feature does not obviously touch those areas.
+
+2. **Explore the relevant code area** — read adjacent files, sibling classes, and
+   analogous services in full. Read the tests for those analogous classes.
+
+3. **Summarize observed patterns** — produce an internal summary of how the codebase
+   handles errors, models absence, enforces type boundaries, and structures its layers.
+   This summary is the baseline every subsequent planning decision must be consistent with.
+
+This phase has no user-facing output unless the user asks. It is not skippable.
+The Feature Scope Brief in Phase 1 is only as accurate as the preparation behind it.
+
+---
+
 ## Phase 1: Feature Scope Brief
 
 Produce a **Feature Scope Brief** — a concise, product-level description of what the
@@ -133,6 +154,8 @@ acknowledgment before writing any production code.
 ## Summary Sequence
 
 ```
+Codebase & Documentation Preparation  (Phase 0 — internal, no user gate)
+        ↓
 Feature Scope Brief  →  [user confirms scope]
         ↓
 Architecture Proposal  →  [user confirms architecture]

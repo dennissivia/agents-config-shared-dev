@@ -9,6 +9,65 @@ and cross-reviewed against the project's design documents.
 
 ---
 
+## Rule 0: Mandatory Preparation Before Writing
+
+A plan must not be written until this preparation is complete. Skipping it produces
+plans that default to generic conventions rather than the project's own standards.
+
+### Step 1 — Read design documentation
+
+Before writing a single line of the plan:
+
+- Read all technical design documents relevant to the area being planned
+  (architecture docs, API design, domain model docs).
+- Read every ADR that constrains the area — not just the ones that seem obviously
+  relevant. An ADR about error handling, null safety, or test architecture may
+  apply even when the feature does not look like it touches those areas.
+
+### Step 2 — Explore the relevant code area
+
+Read the full package or module that the planned code will live in or interact with:
+
+- Read adjacent files and sibling classes, not just the single file being changed.
+- Read existing analogous services, components, or handlers — ones that do something
+  structurally similar to what you are about to build.
+- Read the tests for those analogous classes to understand the expected test structure.
+
+### Step 3 — Summarize observed patterns before designing
+
+Before designing anything, produce a brief internal summary of what you observed:
+
+- **Error handling**: How are absent values handled? Optional functional chaining,
+  Result types, typed exceptions mapped centrally? What is explicitly forbidden?
+- **Type safety**: What boundary types are used? Where are raw maps or untyped
+  payloads converted to domain types? Where does null appear and where is it excluded?
+- **Abstractions and layering**: What layers exist? What belongs in each? Which
+  classes own which responsibilities?
+- **Naming and vocabulary**: What terms does the codebase use for the concepts in scope?
+
+This summary is the baseline. Every decision in the plan must be consistent with it.
+
+### Rule: Project ADRs and design documents take precedence over all external conventions
+
+When writing the plan, the project's recorded decisions override any pattern found in:
+
+- Public repositories or tutorials
+- Framework documentation defaults
+- General "best practice" guides
+- Prior experience from other codebases
+
+If the project's ADR says "use Result types," use Result types — even if every public
+Spring Boot example uses exceptions. If the project's design doc says "convert raw maps
+at the boundary," do not leak the raw map into the service layer — even if that is the
+simpler path.
+
+**Error handling and type safety deserve particular scrutiny.** Public examples
+frequently omit proper error handling and rely on implicit typing. These are exactly
+the areas where the project's own rules are most likely to differ from what an
+implementer would default to. Flag these explicitly in the plan.
+
+---
+
 ## Rule 1: Writing Standards
 
 Implementation plans describe **what to build and why**, not how to write every line.
