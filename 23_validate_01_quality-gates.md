@@ -20,6 +20,24 @@ They must be run before any git operation (commit, push, PR).
 - Always run test gates in **non-watch mode** when they are meant to complete and exit.
 - If the repository provides wrapper scripts in `bin/` or `scripts/`, local rules may prefer those over raw tool commands.
 
+## How to Run Tests
+
+**Always run tests in non-watch mode (run once and exit):**
+
+Frontend:
+
+```bash
+cd /home/dennis/dev/private/projects/plannit/frontend && npm run test:run
+```
+
+Backend:
+
+```bash
+cd /home/dennis/dev/private/projects/plannit/backend && ./mvnw test
+```
+
+**Never use watch mode** in quality gates or automated workflows. Watch mode is only for interactive development.
+
 ## Behavior During Validation
 
 - Treat failing tests or lint errors as blockers; fix them before proceeding.
