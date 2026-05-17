@@ -60,11 +60,11 @@ demoed or validated end-to-end.
 - Frontend: `npm run lint`.
 - All checks must pass.
 
-### Gate 3: Mandatory Code Review (26_pr_03)
+### Gate 3: Mandatory Code Review (26_review_03)
 - Apply the full mandatory code review phase.
 - Resolve all blockers and important issues before proceeding.
 
-### Gate 4: Size and Doc Hygiene Check (26_pr_04)
+### Gate 4: Size and Doc Hygiene Check (26_review_04)
 - Count lines added. If over the 800 LOC threshold, apply the extraction review.
 - Check for duplicate or version-suffixed planning documents.
 
@@ -102,7 +102,7 @@ With changes safely staged:
 
 - **STOP:** Propose the commit message as rendered Markdown in chat.
 - **Wait for explicit user approval.**
-- Commit using temp file per `25_git_01` rules.
+- Commit using temp file per `25_persist_01` rules.
 - Announce: "Committed locally. Ready for D(N+1) or should I push?"
 
 ---
@@ -113,7 +113,7 @@ A PR is not required after every deliverable. The default is:
 
 - **Commit locally** after each deliverable (mandatory).
 - **Push to feature branch** when the user asks, or when accumulated churn warrants
-  a review checkpoint per `26_pr_01` limits.
+  a review checkpoint per `26_review_01` limits.
 - **Open PR** only when explicitly requested or when a branch is complete.
 
 ---

@@ -22,7 +22,8 @@ These rules extend the generic testing standards for Java / Spring Boot projects
 
 ### Tagging and Speed
 - Mark slow or environment-dependent tests with `@Tag("integration")` to keep unit runs fast.
-- Quality gates require the full suite (unit + integration) before any git action.
+- Quality gates require the full suite (unit + integration) before any
+  change-persistence action.
 
 ## Test Data Builders and Fixture Wrappers
 

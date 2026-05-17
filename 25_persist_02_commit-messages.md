@@ -36,6 +36,65 @@ The commit message should tell the story behind the change, not narrate the chan
 
 ---
 
+## Writing Stance and Language (Mandatory)
+
+Every commit message and PR body **must** be written from the perspective of a
+**technical project manager or senior engineering manager addressing product
+and business stakeholders**, not from the implementing engineer's
+perspective. This is a hard requirement and applies to every commit and PR
+in every repository.
+
+ADRs, agent plans, implementation plans, and other internal engineering
+artifacts may use more technical language, but commits and PRs always use
+this business-facing stance.
+
+### Required stance
+
+- Summarize **capabilities, goals, and intents** — what the product or
+  codebase now has, and why it matters.
+- Use **plain, professional English**: short sentences, clear nouns, common
+  verbs.
+- Describe **value**, not the mechanism that delivers it.
+- Stay at the abstraction level a senior manager uses when briefing product
+  or business — concrete enough to be honest, abstracted enough to be
+  portable across audiences.
+
+### Forbidden language
+
+The following must not appear in commit messages or PR bodies:
+
+- **AI or agent vernacular**: "lifts X out of", "wires up", "stitches in",
+  "spins up", "lands", "ships", "in flight", "stable anchor", "scaffolding
+  for", "happy path baked in".
+- **Developer or internet slang**: "DX", "QoL", "shiny", "battle-tested",
+  "first-class", "low-hanging fruit", "drop in", "swap out", "plumbing".
+- **Internal labels without explanation**: "I9", "M3", "Sprint 4", version
+  codenames, bare ticket IDs. Replace each with the product or engineering
+  outcome behind the label.
+- **Process meta-commentary about the commit boundary**: "this commit", "as
+  its own change", "in a later PR", "in the next commit". Speak about the
+  product and the codebase, not about how the work was sliced.
+- **Colloquial verbs that hide the change**: "consistency pass", "cleanup
+  sweep", "polish", "tidy".
+
+### Allowed technical vocabulary
+
+Technical terms are allowed when they name a real product or engineering
+capability a senior manager would discuss with product owners (for example
+"rate limiting", "session fixation prevention", "soft delete",
+"accessibility scan", "internationalization coverage"). File names, route
+paths, class and method names, HTTP headers, and database columns remain
+forbidden regardless of audience.
+
+### Fallback
+
+If a change cannot be described without forbidden language, the description
+is not ready. Re-read the diff and the goal, then rewrite at the
+product-and-business level. Do not commit until the description holds at
+that level.
+
+---
+
 ## Critical Rules
 
 1. **Always start with a fitting emoji.**
@@ -64,6 +123,47 @@ The commit message should tell the story behind the change, not narrate the chan
    - implementation details evident from the diff
    - internal monologue
    - overly technical or low-signal text
+   - unexplained internal increment IDs, roadmap IDs, ticket labels, or version shorthand unless the user explicitly wants them in the message
+   - colloquial labels such as "consistency pass", "cleanup sweep", or similar shorthand that hides the actual reason for the change
+   - contrastive or negative framing such as "this is X, not Y" or lists of things the change does not do
+   - self-justifying language that defends scope instead of explaining the context that led to the work
+
+---
+
+## Subject Prefix Format
+
+Commit subjects use a capitalized, long-form intent prefix followed by a colon.
+The prefix makes the change type scannable without adopting Conventional Commits.
+
+Required subject shape:
+
+```markdown
+<emoji> <Prefix>: <imperative subject>
+```
+
+Use these prefixes:
+
+- `Feature:` for user-facing functionality and behavior changes
+- `Bugfix:` for bug fixes and production regressions
+- `Tech:` for internal engineering work, refactors, infrastructure, or quality work
+- `Docs:` for documentation, ADR, roadmap, README, or rule-only changes
+
+Examples:
+
+```markdown
+🔐 Feature: Add passkey sign-in to auth page
+🐛 Bugfix: Fix mobile overview layout regressions
+🛠️ Tech: Clean up test data builders
+📝 Docs: Document repository title prefix convention
+```
+
+Rules:
+
+- Use the colon form in commit titles, never slash prefixes such as `feature/` or `bugfix/`.
+- Use long-form prefixes; do not use abbreviations such as `Feat:`, `Fix:`, or `fix:`.
+- Keep the subject after the prefix imperative / present tense.
+- Branch names are different: they use lowercase slash prefixes such as `feature/...`
+  and `bugfix/...`.
 
 ---
 
@@ -85,6 +185,8 @@ A high-quality commit message body **must**:
 - Provide context so a reviewer or future contributor understands intent quickly.
 - Be **reader-friendly**: short paragraphs, clear reasoning, no jargon unless necessary.
 - Stand on its own—someone reading the commit without the PR or conversation should understand the intent.
+
+The `Context / intent` section must explain the prior condition, inconsistency, or pressure that led to the change. It must not read like a defense of scope, a rejection list, or a note about what the implementation deliberately avoided.
 
 Low-quality, non-narrative commit messages must never be produced.
 
@@ -139,7 +241,7 @@ when a more accurate symbol exists.
 ## Template
 
 ```markdown
-<emoji> <short description>
+<emoji> <Prefix>: <short imperative description>
 
 ## Summary
 <One sentence: human-level outcome (what changed for a user/system)>
@@ -156,8 +258,9 @@ when a more accurate symbol exists.
 - <1–3 bullets max>
 
 ## Validation / quality
-- **Tests added/updated:** <type + count>
-- **Tests run:** <what you executed, result>
+- **Tests added/updated:** <Type and count; brief reason when it explains the test investment, especially if none were added>
+- **Quality approach** (optional): <Outcome-level statement of how quality was ensured — what kind of confidence the change has and through what kind of verification, not which commands were run>
+- **Tests run:** <Suite-level outcome>
 
 ## Future improvements (optional)
 <Only if the user explicitly called out a deferral or accepted limitation>
@@ -191,7 +294,7 @@ Follow-up commits within the same PR use the follow-up template.
 ## Follow-Up / Fix Commit Template
 
 ```markdown
-<emoji> <short description>
+<emoji> <Prefix>: <short imperative description>
 
 ## Summary
 <One sentence: what was addressed>
@@ -237,6 +340,33 @@ If your summary requires knowledge of specific classes, frameworks, or file path
 Ask yourself: "Would a non-engineer understand what this delivers and why it matters?"
 If no, rewrite it.
 
+### Context / intent — Explain Why, Not What Was Excluded
+
+The `Context / intent` section explains why this work happened now and what condition made it necessary.
+
+Good context usually includes one or more of:
+
+- the inconsistency, bug, risk, or workflow problem that existed before the change
+- the product or engineering pressure that made the change worth doing now
+- the decision path or constraint that shaped the chosen implementation
+
+Do not write this section as a contrast against alternatives or exclusions.
+
+**Good:**
+> Before this change, similar forms validated input in different ways, which made trimming, whitespace rejection, and optional-field normalization inconsistent across the UI.
+
+**Good:**
+> We already had shared validation helpers, but several submit paths still used ad hoc guards. Aligning those paths now reduces user-facing inconsistency and makes later validation work easier to evolve.
+
+**Bad:**
+> This is a consistency pass, not a redesign.
+
+**Bad:**
+> This change does X and does not do Y.
+
+**Bad:**
+> We intentionally did not adopt a bigger architectural change here.
+
 ### Key Changes — Features and User Outcomes, Not Code
 
 Key changes describe **what users or the product can now do** — not what files changed or
@@ -279,9 +409,25 @@ If something was part of building the feature (bug fixes during development, tes
 builder cleanup, seed data corrections), it belongs in the diff, not in the commit
 message. The reviewer wouldn't ask "why is this here?" so don't call it out.
 
-### Validation / Quality — Keep It Minimal
+### Validation / Quality — Outcome-Level Reporting
 
-State what was tested and the result. Two lines. No commands, no file lists.
+State what was tested, why the test investment was appropriate (especially when
+no tests were added), and the result.
+
+A third optional bullet may describe the overall quality approach at the
+outcome level — what kind of confidence the change has and through what kind
+of verification, not which command was run.
+
+- **Tests added/updated** is required. When the right answer was "no new
+  tests", say so and explain the reason in one phrase.
+- **Quality approach** is optional. Use it when the quality story is not
+  obvious from the test count alone — for example a pure refactor relying on
+  existing coverage, or a security-sensitive change where the verification
+  strategy matters.
+- **Tests run** is required. Report the suite-level outcome only.
+
+No commands. No file lists. No tool flags. The reader cares about the
+guarantee, not the keystrokes.
 
 ---
 
@@ -290,6 +436,7 @@ State what was tested and the result. Two lines. No commands, no file lists.
 Before finalizing a commit message, verify:
 
 - [ ] Can I explain this commit in one sentence to a product person?
+- [ ] Is the language at the level of a senior manager briefing product, with no AI vernacular ("lifts", "wires up", "stable anchor"), developer slang ("DX", "first-class", "plumbing"), internal labels ("I9", "M3"), or process meta-commentary ("this commit", "in the next PR")?
 - [ ] Does every Key Changes bullet describe a *user outcome or product capability*, not a file/class/method/route?
 - [ ] Does any bullet contain a route path, class name, method name, or HTTP header? If yes, rewrite or remove it.
 - [ ] Would removing any bullet lose information a reviewer needs? If not, remove it.

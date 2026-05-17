@@ -1,7 +1,7 @@
 # Quality Gates
 
 Quality checks ensure that changes are safe, consistent, and ready for review. 
-They must be run before any git operation (commit, push, PR).
+They must be run before any change-persistence operation (commit, push, PR).
 
 ## What to Run
 

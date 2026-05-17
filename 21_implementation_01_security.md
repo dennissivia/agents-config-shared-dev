@@ -98,7 +98,7 @@ EOF
 ### Git Commit Messages Example
 
 ```bash
-# GOOD: Safe commit message handling
+# GOOD: Safe commit message handling with retry-friendly cleanup
 MSGFILE=$(mktemp)
 cat >| "$MSGFILE" << 'EOF'
 ✨ Your commit message
@@ -106,8 +106,15 @@ cat >| "$MSGFILE" << 'EOF'
 ## Summary
 ...
 EOF
+
+# Run the repo hook/pre-check first when the repo exposes one
+# If the commit fails, keep $MSGFILE for the retry
 git commit -F "$MSGFILE"
-rm "$MSGFILE"
+
+# Verify the commit before cleanup
+echo "HEAD=$(git rev-parse --short HEAD)" && git --no-pager show HEAD --stat --format="commit %H%nDate: %ai%nSubject: %s" | cat
+
+unlink "$MSGFILE"
 ```
 
 ### Never Do This

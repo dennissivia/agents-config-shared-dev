@@ -4,7 +4,8 @@ When starting a new release, feature set, or significant increment of work, run 
 four-phase kickoff protocol **before any implementation begins**. Each phase has an
 explicit human confirmation gate.
 
-This protocol is additive — the existing implementation, quality, and git workflow
+This protocol is additive — the existing implementation, quality, and
+change-persistence workflow
 phases run unchanged after the kickoff is complete.
 
 ---
@@ -164,5 +165,6 @@ Increment & Slice Breakdown  →  [user reviews breakdown]
         ↓
 Agent Plan (per increment)  →  [user acknowledges]
         ↓
-Implementation  →  Quality gates  →  Git  →  PR
+Implementation  →  Quality gates  →  Change persistence  →  PR
+
 ```

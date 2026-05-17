@@ -9,7 +9,9 @@ This repository is the **shared `.agents/` subfolder for software development wo
 
 ## Workflow Entry and Stages
 - `10_dev_workflow.md` — entrypoint for development tasks; follow phases in order.
-- `20–26` series — stage-specific rules: analysis, implementation, refactor, validation/QA, git, PRs.
+- `11–19` series — cross-phase workflow structure and workspace/bootstrap rules.
+- `20–27` series — stage-specific rules: analysis, implementation, refactor,
+  quality assurance, change persistence, review, and integration/deployment.
 
 ## Target Layout (when installed)
 ```
@@ -17,6 +19,8 @@ This repository is the **shared `.agents/` subfolder for software development wo
   00_index.md
   # optional: global package (`01_global_*.md` files) from the shared global repo
   10_dev_workflow.md
+  11_project_structure_and_deliverable_lifecycle.md
+  12_workspace_01_worktrees.md
   20_analysis_01_technical-decisions.md
   21_implementation_01_security.md
   21_implementation_02_configuration-and-properties.md
@@ -27,17 +31,19 @@ This repository is the **shared `.agents/` subfolder for software development wo
   23_validate_01_quality-gates.md
   24_qa_01_testing-standards.md
   24_qa_02_testing-standards_spring-boot.md
-  25_git_01_git-workflow.md
-  25_git_02_commit-messages.md
-  26_pr_01_pull-requests.md
+  25_persist_01_change-persistence-workflow.md
+  25_persist_02_commit-messages.md
+  26_review_01_pull-requests.md
+  27_integrate_01_post-merge-and-deployment.md
 AGENTS_CODING_SPEC.md  (reference standard)
 ```
 
 ## Numbering Guide
 - `00`: dispatcher only (must be loaded first)
 - `01–09`: reserved for global rules (communication, safety, boundaries, context) from the global package
-- `10–19`: package indexes (development index present here)
-- `20–69`: workflow rules (analysis, implementation, validation, git, PR)
+- `10–19`: workflow entry, lifecycle, and workspace/bootstrap rules
+- `20–69`: workflow rules (analysis, implementation, quality assurance,
+  change persistence, review, integration/deployment)
 - `70–79`: experimental / WIP
 - `80–99`: reserved
 

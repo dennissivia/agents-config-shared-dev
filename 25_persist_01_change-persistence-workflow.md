@@ -1,14 +1,20 @@
-# Git/GitHub Workflow
+# Change Persistence Workflow (Git/GitHub)
 
 These rules describe how to use git safely and predictably in this workflow.
 
 ## Feature Branches — Mandatory
 - Never commit directly to `main` unless explicitly told to for trivial documentation updates.
-- Default to feature branches for all work (e.g., `feature/<description>`, `fix/<description>`).
+- Default to branch prefixes with one slash (for example `feature/<description>`, `bugfix/<description>`, `tech/<description>`).
 - The agent may choose a reasonable branch name by itself; do **not** pull the user in just to decide names.
 
 ### Branch Naming Style
 
+- Branch names use lowercase long-form prefixes followed by `/`.
+- Prefer `feature/` for user-facing functionality, `bugfix/` for bug fixes, `tech/` for
+  internal engineering work, and `docs/` for documentation-only work.
+- Do not use abbreviated prefixes such as `feat/` or `fix/`.
+- The slash convention belongs to branch names only. Commit and PR titles use the
+  capitalized colon convention from the commit-message and PR rules.
 - Prefer branch names that describe the **outcome or capability**, not just the
   milestone or project-management label.
 - Good branch names help reviewers understand the purpose without opening the diff.
@@ -17,6 +23,7 @@ These rules describe how to use git safely and predictably in this workflow.
 Good:
 
 - `feature/passkey-auth-ui`
+- `bugfix/mobile-overview-layout`
 - `feature/onboarding-exit-paths`
 - `tech/test-data-builder-cleanup`
 
@@ -54,7 +61,7 @@ Avoid special characters that require shell escaping.
   (for example `V0.7`, `v1.2`, or a similarly versioned release branch/plan),
   treat frontend/backend version metadata as part of the release artifact rather
   than as incidental package metadata.
-- On the **last PR of that increment**, before the final commit/PR handoff, update
+- On the **last commit of that increment**, before review publication, update
   the version for each application surface changed by the increment:
   - frontend: `frontend/package.json`
   - backend: `backend/pom.xml`
@@ -62,22 +69,22 @@ Avoid special characters that require shell escaping.
   the user explicitly wants earlier version visibility.
 - Only bump the surfaces actually touched by the increment. If the increment is
   backend-only, do not bump the frontend just for symmetry.
-- The agent must call out the planned version bump in the pre-commit / pre-PR
-  handoff for the final PR of the increment so the user can verify the target
-  version before git actions.
+- The agent must call out the planned version bump in the persistence-prep and
+  review handoff for the final increment so the user can verify the target
+  version before publication.
 
-## Never Auto-Push, Auto-PR, or Auto-Merge
+## Never Auto-Push, Auto-Start Review, or Auto-Merge
 - **Never push** commits unless user explicitly requests "push" or "create PR".
-- **Never create PR** unless user explicitly requests it.
+- **Never start review publication / create a PR** unless user explicitly requests it.
 - **Never merge a PR** — merging is always a human action.
-- After committing, inform user: "Committed locally. Would you like me to push or create a PR?"
+- After committing, inform user: "Committed locally. Would you like me to push this branch?"
 - This avoids unnecessary force pushes, rebases, and squashes by allowing multiple commits to accumulate before pushing.
 
-**Exception — review-fix commits**: When the commit addresses PR review feedback (Phase 5 of `26_pr_05_address-review-comments.md`), the user's approval of the commit message also authorizes the push. Do not ask again. Push immediately, then proceed through Phase 6 (reply + resolve threads) and poll for new review feedback. The "Committed locally. Would you like me to push?" pattern does **not** apply to review-fix commits.
+**Exception — review-fix commits**: When the commit addresses review feedback (Phase 5 of `26_review_05_address-review-comments.md`), the user's approval of the commit message also authorizes the push. Do not ask again. Push immediately, then proceed through the active review loop. The "Committed locally. Would you like me to push?" pattern does **not** apply to review-fix commits.
 
 The two distinct flows:
-- **Review-fix flow**: `commit (user approves message) → push → reply → resolve threads → poll` — automatic after commit message approval
-- **Opening PR flow**: `commit → ask user → push → create PR` — user approval required before push
+- **Review-fix flow**: `commit (user approves message) → push` — automatic after commit message approval inside the review phase
+- **Standard persistence flow**: `commit → ask user → optional push` — review publication is a later phase
 
 ## Proactive Process Continuation
 - After completing a task — including addressing review feedback and resolving threads — do not ask the user what to do next.
@@ -85,7 +92,7 @@ The two distinct flows:
 - Only hand back to the user at a defined hard-stop point (user approval required, destructive action, ambiguous requirement) or at the end of a workflow phase.
 - A question like "Would you like to merge?" is always wrong — the agent never merges and the next step is defined by the workflow, not by asking.
 
-## Git Operations Flow
+## Change Persistence Flow
 1. **Work through planned tasks** until reaching a logical completion point (e.g., entire subheading done).
 2. **Announce completion**: "Finished [section name]. All [X] tasks complete. Should I commit this?"
 3. **Wait for user confirmation** to proceed with commit.
@@ -109,11 +116,20 @@ The two distinct flows:
 5. **Verify staged files**: Run `git status --short` and confirm all intended files are staged (status `A` or `M` in first column).
    - If files are missing or unexpected files are staged, fix staging before proceeding.
    - **CRITICAL**: Never run `git commit` without verifying staged files first.
-6. **Commit**: Use structured commit template (see commit message rules).
-   - **CRITICAL**: Always propose the commit message as rendered Markdown in chat first. Only construct shell commands after user approval.
-   - **CRITICAL**: Always use temporary files for commit messages (see [Temporary Files](#temporary-files-for-commit-messages)).
-   - Never use hardcoded paths like `/tmp/commit-msg.txt` - use `mktemp` or date-based unique names.
-7. **Verify the commit succeeded**: Run this exact command after every `git commit`:
+6. **Run the commit pre-check** before writing or using the commit-message temp file.
+  - First determine whether the repository has a real hook or pre-check entrypoint that can be run independently.
+  - If that entrypoint exists, run it first.
+  - If it does not exist, run the repository's documented quality gate for the commit scope instead. Do not invent arbitrary substitute checks.
+  - If the pre-check fails, fix the issue and rerun the same pre-check until it passes or you need user input.
+7. **Prepare the approved commit message in a temp file**.
+  - **CRITICAL**: Always propose the commit message as rendered Markdown in chat first. Only construct shell commands after user approval.
+  - **CRITICAL**: Always use temporary files for commit messages (see [Temporary Files](#temporary-files-for-commit-messages)).
+  - Never use hardcoded paths like `/tmp/commit-msg.txt` - use `mktemp` or date-based unique names.
+  - Write the approved message to the temp file in its own step before attempting `git commit`.
+8. **Attempt the commit** with `git commit -F <tempfile>`.
+  - Do the commit attempt as its own command. Do not bundle it with verification or cleanup.
+  - If the commit fails, keep the temp file in place, inspect the failure, fix the underlying issue, and retry using the same approved message file until the commit succeeds or the user redirects the work.
+9. **Verify the commit succeeded**: Run this exact command after every successful `git commit`:
    ```bash
    echo "HEAD=$(git rev-parse --short HEAD)" && git --no-pager show HEAD --stat --format="commit %H%nDate: %ai%nSubject: %s" | cat
    ```
@@ -127,10 +143,13 @@ The two distinct flows:
      remaining staged files and investigate.
    - **Do not run multiple exploratory git commands** trying to figure out what happened. One
      verification command is enough. If it's unclear, ask the user.
-8. **Stop and inform**: "Committed locally. Ready to continue with next section, or would you like me to push/create a PR?"
-9. **Only when explicitly instructed**:
+10. **Unlink the temp file only after success is confirmed**.
+    - Cleanup is its own final step after verification.
+    - If the commit fails, do not unlink the temp file yet.
+11. **Stop and inform**: "Committed locally. Ready to continue with next section, or would you like me to push this branch?"
+12. **Only when explicitly instructed**:
    - Push: `git push` to current feature branch (avoid force pushes).
-   - Create PR: Follow pull request rules.
+  - Review publication / PR creation happens in the review phase rules.
 
 ## Git Safety
 - **Force flags are categorically forbidden** — never use `-f` / `--force` on any git subcommand
@@ -170,53 +189,19 @@ git diff main..HEAD --numstat | awk '{add+=$1; del+=$2} END {printf "Branch chur
 
 This check happens **once** when resuming or starting new work — not after every commit.
 
-## Post-PR Merge Workflow
-When the user states that they merged the PR and want to move on:
+## Post-Merge Integration And Deployment
 
-1. **Check working tree first**:
-   - If the working tree is not clean, stash **everything currently changed** before switching
-     branches.
-   - Use a named stash message so the purpose is obvious later.
-   - Prefer one stash command for the current cleanup pass whenever practical.
-2. **Checkout main branch**: `git checkout main`
-3. **Fetch remote changes**: `git fetch origin`
-4. **Update main**:
-   - Prefer a clean fast-forward update when possible.
-   - If the repository workflow or current state requires it, use a rebase-based pull for main.
-   - **HARD STOP on conflicts**: if update conflicts occur, stop immediately and ask the user.
-     Do not resolve them automatically.
-5. **Delete local feature branch**:
-   - Try `git branch -d <feature-branch>` first.
-   - If it fails, assume a squash merge is likely before assuming something is wrong.
-   - Verify the feature branch content is already contained in main by comparing the branch tips
-     (for example `git diff --stat main..<feature-branch>` and confirm the diff is empty).
-   - If the changes are present in main, use `git branch -D <feature-branch>` and continue.
-   - If the changes are **not** present, stop and ask the user.
-6. **Restore stashed local work**:
-   - Only restore a stash if **this cleanup flow created one**. If you did not create a cleanup
-     stash in the current post-merge pass, do not pop any stash.
-   - Before restoring, verify the candidate stash is the one just created for this cleanup flow by
-     checking its message, creation time, and expected file scope.
-   - Do not pop an older unrelated stash just because one exists locally.
-   - If you created a cleanup stash, restore it with `git stash pop`, not `git stash apply`.
-   - If multiple named stashes were created as part of the same cleanup flow, pop only those
-     explicitly intended stashes after the branch update and deletion succeed.
-   - After each pop, verify the restored files still make sense on top of current `main` before
-     continuing.
-7. **Clean slate**: main is updated, the merged feature branch is removed locally, and any stashed
-   local work is restored on top of current main.
+Post-merge cleanup, branch reconciliation, and any local/manual deployment steps
+belong to the integration phase, not to change persistence.
 
-**Next steps:**
-- Wait for user to describe the next task
-- Create a new feature branch when starting new work
-- Never continue working on a merged feature branch
+See `27_integrate_01_post-merge-and-deployment.md`.
 
 ## Temporary Files for Commit Messages
 
-**CRITICAL: Use `mktemp` for commit message files to avoid file-exists errors.**
+**CRITICAL: Use `mktemp` for commit message files to avoid file-exists errors, and keep the file until the commit outcome is known.**
 
 ```bash
-# GOOD: Safe, unique temp file
+# GOOD: Safe, multi-step commit flow with a unique temp file
 MSGFILE=$(mktemp)
 cat >| "$MSGFILE" << 'EOF'
 ✨ Your commit message
@@ -224,7 +209,14 @@ cat >| "$MSGFILE" << 'EOF'
 ## Summary
 ...
 EOF
+
+# Run hook/pre-check first when possible, then attempt the commit
 git commit -F "$MSGFILE"
+
+# Verify the commit separately
+echo "HEAD=$(git rev-parse --short HEAD)" && git --no-pager show HEAD --stat --format="commit %H%nDate: %ai%nSubject: %s" | cat
+
+# Only unlink after success is confirmed
 unlink "$MSGFILE"
 ```
 
@@ -232,6 +224,8 @@ unlink "$MSGFILE"
 - Always use `mktemp` or date-based unique names (`/tmp/commit-$(date +%Y%m%d-%H%M%S-%N).txt`)
 - Use `>|` (not `>`) in zsh to force overwrite (zsh has `noclobber` enabled)
 - Never use hardcoded paths like `/tmp/commit-msg.txt`
+- Do not unlink the temp file until the commit has succeeded and been verified
+- If the commit fails, keep the temp file and retry after fixing the blocking issue
 
 For complete temporary file guidelines, see `.agents/shared/dev/21_implementation_01_security.md` (Temporary Files section).
 

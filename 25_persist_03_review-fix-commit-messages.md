@@ -1,7 +1,7 @@
 # Review-Fix Commit Messages
 
 This file defines the commit message template and rules for commits that address
-PR review feedback. It extends `25_git_02_commit-messages.md` and takes precedence
+PR review feedback. It extends `25_persist_02_commit-messages.md` and takes precedence
 for review-fix commits.
 
 ---
@@ -19,7 +19,7 @@ additions. In that case, use the full feature commit template.
 ## Template
 
 ```markdown
-<emoji> tech/address PR review — <brief topic description>
+<emoji> <brief review-fix topic description>
 
 ## Summary
 <One sentence: what category of issues were addressed. No PR numbers, no "inline comments", no reviewer names.>
@@ -35,8 +35,8 @@ additions. In that case, use the full feature commit template.
 
 ### Subject Line
 
-- Prefix: `tech/address PR review`
-- Add a brief topic phrase after `—` to describe the change category (e.g., `security and error handling`, `tooling and type safety`).
+- Do not use repository title prefixes (`Feature:`, `Bugfix:`, `Tech:`, `Docs:`) for review-fix commits.
+- Keep the emoji and use a brief topic phrase to describe the change category (e.g., `Address security and error handling feedback`, `Address tooling and type safety feedback`).
 - No PR numbers, no "inline comments", no reviewer names.
 - Keep it under one readable phrase.
 

@@ -1,9 +1,9 @@
-# Addressing PR Review Comments
+# Addressing Review Comments
 
 This rule defines the full workflow for triaging, fixing, committing, and closing
 inline review comments left by automated reviewers (e.g., Copilot) or human reviewers.
-It applies after all review comments have been pulled using the commands in
-`26_pr_02_reading-pr-review-comments.md`.
+It applies after all review comments have been loaded using the repository's
+review-comment reading rules (see `26_review_02_reading-review-comments.md`).
 
 ---
 
@@ -13,7 +13,7 @@ This workflow **must be initiated automatically** when any of the following occu
 
 1. **The user mentions a review**: e.g., "Copilot reviewed the PR", "there are review
    comments", "address the review", or similar.
-2. **The agent is explicitly asked** to check, assess, or address PR feedback.
+2. **The agent is explicitly asked** to check, assess, or address review feedback.
 
 When triggered, the agent must:
 
@@ -23,6 +23,19 @@ When triggered, the agent must:
 
 The agent must never skip the triage presentation. The human reviews the assessment
 before any code changes begin.
+
+### Retroactive Recovery If Fixes Already Started
+
+If the agent has already started implementing review fixes before this triage
+and approval step, that is a workflow violation. The agent must:
+
+1. Stop further code changes immediately.
+2. Surface the triage retroactively — pull the full comment set and present the
+   triage table as if no fixes had been written yet.
+3. Let the user decide whether to keep, adjust, or revert the already-applied
+   local changes before any git action.
+
+Do not commit, push, or update the review artifact for review-fix work that bypassed triage.
 
 ---
 
@@ -243,7 +256,7 @@ post-fix step confirms what was actually missing after seeing the real fix.
 - Was this primarily a missing test?
 - Was this primarily a missing rule or unclear rule?
 - Was this primarily a self-review miss?
-- Did the validation handoff miss an important signal?
+- Did the QA process miss an important signal?
 - Did the implementation cross a boundary that should have had stronger typing,
   cancellation, validation, or abstraction?
 
@@ -283,7 +296,8 @@ Typical safeguard follow-ups:
 
 ## Phase 5: Commit
 
-Use the standard structured commit template (see `25_git_02_commit-messages.md`).
+Use the standard structured commit template (see
+`25_persist_02_commit-messages.md`).
 
 Before proposing the commit:
 
@@ -301,7 +315,7 @@ The commit **must**:
 
 1. Push the branch.
 2. Proceed directly to Phase 6 (reply to comments + resolve threads).
-3. Then poll for new automated review feedback (see `26_pr_05_review-polling-and-auto-triage.md`).
+3. Then continue the review loop according to repository review-detection rules.
 
 No additional user handover is needed between commit approval and poll completion.
 

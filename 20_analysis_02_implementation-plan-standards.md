@@ -113,6 +113,55 @@ SQL constraint, a particular enum set, an unusual method signature), include it.
 - Copy-paste-ready code blocks (the plan is not a code generator)
 - Implementation details that the existing codebase patterns already dictate
 
+### Snippet Policy: Use Snippets To Enforce, Not To Transcribe
+
+Code snippets in plans are a deliberate tool, not a default. Use them only when
+they enforce a decision that prose cannot reliably convey.
+
+**When to include a snippet:**
+
+- A specific framework / security construct where picking the wrong form
+  silently breaks the design (e.g., a particular Spring Security matcher form,
+  a CSRF cookie repository call, a `@Profile` boundary, an `@Order` annotation).
+- A typed boundary contract (e.g., a `@ConfigurationProperties` record signature
+  with prefix and validation annotations) that locks in the namespace and
+  binding shape.
+- A class, interface, or layering anchor that ties to a clean-architecture or
+  DDD decision and prevents drift toward a wrong-but-plausible alternative.
+- A decision-record-derived constraint where the implementation must follow a
+  specific shape, and the decision record alone is not enough to disambiguate.
+
+Snippets in plans should be **minimal**: the smallest fragment that locks in
+the decision, not a full class or file body.
+
+**When to skip a snippet:**
+
+- Constructor wiring, getters, builder patterns, generic test scaffolding.
+- Full property-file blocks, full deployment-config blocks, full class bodies.
+- Method bodies that follow obviously from the signature.
+- Anything the implementing agent would write the same way after reading an
+  analogous file in the codebase.
+
+Replace such cases with a one-line description plus a pointer to the canonical
+example file (e.g., "follow the shape of `HostedSecurityContractIntegrationTest`").
+
+**Always emphasize, even without snippets:**
+
+- The relevant decision records and which decisions they impose. **Decision
+  records override existing patterns** when they conflict — say so directly when
+  the conflict is plausible.
+- The existing patterns the implementation must reuse, and the canonical file
+  that demonstrates each.
+- "Do this, not that" guidance whenever the wrong-but-plausible pattern would
+  compile and pass tests but violate a recorded decision or architectural
+  convention.
+
+### Length Target
+
+Single-increment plans should fit comfortably under ~300 lines. If a draft
+crosses that line, the question is "what derivable detail can I cut" before
+"should this be split."
+
 ---
 
 ## Rule 2: Cross-Review Before Implementation
