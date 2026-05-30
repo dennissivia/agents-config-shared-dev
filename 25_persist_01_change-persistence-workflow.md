@@ -128,6 +128,13 @@ The two distinct flows:
   - Write the approved message to the temp file in its own step before attempting `git commit`.
 8. **Attempt the commit** with `git commit -F <tempfile>`.
   - Do the commit attempt as its own command. Do not bundle it with verification or cleanup.
+  - If the repository pre-check or quality gate has already passed for the exact staged content,
+    use `git commit --no-verify -F <tempfile>` so the commit hook does not rerun the same
+    checks unnecessarily.
+  - This applies especially to consecutive commit attempts after a non-content failure, such as
+    a sandbox or git lock error. If any source, test, documentation, generated contract, or
+    staging content changes after the passing check, rerun the required pre-check before
+    committing.
   - If the commit fails, keep the temp file in place, inspect the failure, fix the underlying issue, and retry using the same approved message file until the commit succeeds or the user redirects the work.
 9. **Verify the commit succeeded**: Run this exact command after every successful `git commit`:
    ```bash

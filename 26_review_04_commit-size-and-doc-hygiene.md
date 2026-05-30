@@ -4,32 +4,35 @@ Rules for keeping commits reviewable and documentation clean.
 
 ---
 
-## Commit Size — Hard Limit: 800 Lines Added
+## Commit Size — Review Warning: 800 Net-New Lines
 
-Before proposing a commit, count lines added:
+Before proposing a commit, run the repository diff-stat tool against the staged
+change:
 
 ```bash
-git diff --cached --numstat | awk '{add+=$1} END {print "Lines added:", add}'
+bin/git-diff-stats.bash --cached
 ```
 
-**If lines added exceed 800, a mandatory Extra Review is required** (see below).
+**If net-new lines exceed 800, a mandatory size review is required** (see below).
 
-This is a hard gate, not a soft suggestion. The extra review must complete before
-composing the commit message.
+This is a review gate, not an automatic split requirement. The size review must
+complete before composing the commit message, and the human can approve keeping
+the slice together when it is coherent.
 
 ### What counts toward the limit
 
-- All staged additions across all files.
-- Tests, boilerplate, and config all count.
-- Generated files and lock files are excluded from the spirit of the check but included
-  in the count — call them out explicitly if they inflate the number artificially.
+- Net-new lines: staged additions minus staged deletions.
+- All staged files count, including tests, boilerplate, config, docs, and tooling.
+- Generated files and lock files are included in the script output; call them out
+  explicitly if they inflate the number artificially.
 
 ---
 
-## Extra Review: When 800 Lines Are Exceeded
+## Size Review: When 800 Net-New Lines Are Exceeded
 
-Run this analysis and include the results in the commit message under an
-"Extra review" section.
+Run this analysis and present it in the QA or persistence handoff. Do not add an
+"Extra review" section to the commit message. Commit messages should continue to
+use the normal summary, key changes, and validation/quality sections.
 
 ### Step 1 — Categorise the additions
 

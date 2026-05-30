@@ -29,8 +29,10 @@ additions. In that case, use the full feature commit template.
 - <Each bullet = one fix or closely related group>
 
 ## Validation / quality
-- **Regression prevention:** <What regressions were protected against; or "None" if not applicable.>
-- **Test improvements:** <Count of tests added/updated, total suite result.>
+- **Test focus:** <High-level use cases or behavior areas the tests focused on; no file names or test counts>
+- **Automated tests:** <Pass/fail outcome and new/updated unit, integration, or E2E coverage areas>
+- **Manual tests** (optional): <Manual QA explicitly performed or requested by the human>
+- **Findings** (optional): <Bugs found during QA that were fixed immediately or added to the backlog>
 ```
 
 ### Subject Line
@@ -96,30 +98,38 @@ names, method signatures, file paths, or library details.
 
 ## Rules for Validation / Quality
 
-The `Validation / quality` section uses exactly two sub-fields:
+The `Validation / quality` section uses outcome-level fields:
 
-### Regression prevention
+### Test focus
 
-Was any previously broken or unprotected behavior guarded by a new regression test?
-State what was protected and why it matters.
-
-If no regression test was added, write: `None.`
+State the use cases or behavior areas the tests focused on. Keep it to one line,
+and do not mention file names, test method names, or test counts.
 
 **Good:**
-> Session fixation regression test added; verifies the fixation policy is active on sign-in.
+> Session security and error-state handling around sign-in.
 
 **Bad:**
 > `SecurityConfigIntegrationTest.java` updated with session fixation assertion.
 
-### Test improvements
+### Automated tests
 
-How many tests were added or updated? What did the full suite run?
+State whether automated tests passed and what automated coverage was added or
+updated at the unit, integration, or E2E level.
 
 **Good:**
-> 11 tests added (10 unit, 1 integration). All 364 FE + 551 BE tests pass.
+> All passed; updated integration tests for session security and frontend tests for error copy.
 
 **Bad:**
 > Tests pass.
+
+### Manual tests
+
+Optional. Mention only manual QA explicitly requested or performed by the human.
+
+### Findings
+
+Optional. Mention only bugs or quality issues found during QA that were fixed
+immediately or recorded for follow-up.
 
 ---
 

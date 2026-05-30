@@ -258,9 +258,10 @@ when a more accurate symbol exists.
 - <1–3 bullets max>
 
 ## Validation / quality
-- **Tests added/updated:** <Type and count; brief reason when it explains the test investment, especially if none were added>
-- **Quality approach** (optional): <Outcome-level statement of how quality was ensured — what kind of confidence the change has and through what kind of verification, not which commands were run>
-- **Tests run:** <Suite-level outcome>
+- **Test focus:** <High-level use cases or behavior areas the tests focused on; no file names or test counts>
+- **Automated tests:** <Pass/fail outcome and new/updated unit, integration, or E2E coverage areas>
+- **Manual tests** (optional): <Manual QA explicitly performed or requested by the human>
+- **Findings** (optional): <Bugs found during QA that were fixed immediately or added to the backlog>
 
 ## Future improvements (optional)
 <Only if the user explicitly called out a deferral or accepted limitation>
@@ -305,8 +306,10 @@ Follow-up commits within the same PR use the follow-up template.
 - <Small incidental changes (config cleanup, dev artifact removal) do not need listing>
 
 ## Validation / quality
-- **Regressions:** <Were any regressions introduced? Did the fix improve the quality situation?>
-- **Tests:** <Count of tests added/updated for these fixes, total suite result>
+- **Test focus:** <High-level use cases or behavior areas the tests focused on; no file names or test counts>
+- **Automated tests:** <Pass/fail outcome and new/updated unit, integration, or E2E coverage areas>
+- **Manual tests** (optional): <Manual QA explicitly performed or requested by the human>
+- **Findings** (optional): <Bugs found during QA that were fixed immediately or added to the backlog>
 ```
 
 ### Follow-Up Template Rules
@@ -323,8 +326,9 @@ Follow-up commits within the same PR use the follow-up template.
    directly responds to feedback. Meta-artifacts (ADRs, agent rules) created as part of the
    fix process are not key changes — they support the fix but are not the fix itself.
 
-4. **Validation focuses on quality delta.** Did we add regression tests? Did the fix
-   improve coverage or correctness? Keep it to 1–2 lines.
+4. **Validation focuses on quality delta.** State the use cases covered and
+   whether automated tests passed. Mention manual QA or findings only when
+   they add real information.
 
 5. **Length target: under 20 lines.** Follow-ups should be quick reads.
 
@@ -411,22 +415,27 @@ message. The reviewer wouldn't ask "why is this here?" so don't call it out.
 
 ### Validation / Quality — Outcome-Level Reporting
 
-State what was tested, why the test investment was appropriate (especially when
-no tests were added), and the result.
+State what behavior was covered and whether the relevant automated checks passed.
+Keep the section readable for product and engineering stakeholders.
 
-A third optional bullet may describe the overall quality approach at the
-outcome level — what kind of confidence the change has and through what kind
-of verification, not which command was run.
+Required fields:
 
-- **Tests added/updated** is required. When the right answer was "no new
-  tests", say so and explain the reason in one phrase.
-- **Quality approach** is optional. Use it when the quality story is not
-  obvious from the test count alone — for example a pure refactor relying on
-  existing coverage, or a security-sensitive change where the verification
-  strategy matters.
-- **Tests run** is required. Report the suite-level outcome only.
+- **Test focus:** one high-level line naming the use cases or behavior areas
+  that received test attention. Do not list file names, test method names, or
+  test counts.
+- **Automated tests:** one line with the pass/fail outcome plus the kinds of
+  automated coverage added or updated, such as unit, integration, or E2E tests
+  for a named behavior area.
 
-No commands. No file lists. No tool flags. The reader cares about the
+Optional fields:
+
+- **Manual tests:** include only manual QA that the human explicitly requested
+  or performed. Keep it brief and outcome-focused.
+- **Findings:** include only bugs or quality issues found during QA that were
+  fixed immediately or recorded for follow-up.
+
+Omit optional fields when they do not add useful information. No commands, file
+inventories, tool flags, or raw test counts. The reader cares about the
 guarantee, not the keystrokes.
 
 ---
