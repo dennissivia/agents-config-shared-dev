@@ -19,6 +19,11 @@ code changes regardless of size.
 Work through each category and report findings. Flag issues as **BLOCKER**,
 **IMPORTANT**, or **SUGGESTION**.
 
+Assess code quality (categories 1–6) against the implementation design guidance
+in `21_implementation_11_code-design-and-quality.md`, and test quality
+(category 7) against `24_qa_06_test-implementation-quality.md`. Those files
+define the standard; this checklist is how it is applied per change.
+
 ### 1. Code Quality
 
 - Are functions and methods focused on a single responsibility?
@@ -59,6 +64,21 @@ Work through each category and report findings. Flag issues as **BLOCKER**,
 - Are domain concepts named consistently with the ubiquitous language in the codebase and docs?
 - Is business logic in the service/domain layer, not in controllers or UI components?
 - Are domain boundaries respected — does one aggregate/context reach directly into another?
+
+### 7. Test Quality
+
+Assessed against `24_qa_06_test-implementation-quality.md`.
+
+- Do tests reuse existing builders/fixtures and shared setup instead of
+  re-creating object graphs or copying arrangement into each test?
+- Is common stubbing/mocking shared rather than redefined per test?
+- Are assertions pessimistic, specific, and precise — unable to pass by accident
+  (exact values/identities/quantities, quantity checked before indexing, absence
+  asserted as absence)?
+- Where a change has several meaningful steps, does the test validate each step
+  fast-fail style while still proving one focused behaviour?
+- Do setup and support assertions stay out of the way so the core behaviour under
+  test is immediately visible?
 
 ---
 

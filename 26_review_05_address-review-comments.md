@@ -41,19 +41,18 @@ Do not commit, push, or update the review artifact for review-fix work that bypa
 
 ## Phase 1: Pull All Comments
 
-Before doing anything else, fetch both the review body and all inline code comments:
+Before doing anything else, fetch both the review body and all inline code comments.
+Use the active repository's review-comment reading rule for the exact command.
 
-```bash
-# Review summary (Copilot or any reviewer)
-gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews \
-  --jq '.[] | "---\nReviewer: \(.user.login)\n\(.body)\n"' | cat
+Tool priority for review-comment workflows:
 
-# Inline code comments (with IDs for later closing)
-gh api repos/{owner}/{repo}/pulls/{pr_number}/comments \
-  --jq '.[] | "---\nID: \(.id)\nFile: \(.path):\(.line)\n\(.body)\n"' | cat
-```
+1. Use local repository scripts or helper tools specialized for the task.
+2. If no local helper exists, use explicitly defined `gh` commands from the active workflow rules.
+3. Use built-in tools or connectors only when no local helper or workflow-defined `gh` command
+   covers the needed operation.
 
-Always pipe through `| cat` to prevent interactive pager sessions.
+The loaded comment set must include the comment identifiers needed for later replies and thread
+resolution.
 
 ---
 
@@ -337,65 +336,16 @@ Get the short hash with `git rev-parse --short HEAD`.
 
 ### Reply Command
 
-The `/replies` sub-endpoint does not work. Use the PR comments endpoint with
-`in_reply_to` to reply to an existing comment:
-
-```bash
-# Reply to a single comment
-gh api "repos/{owner}/{repo}/pulls/{pr_number}/comments" \
-  --method POST \
-  --field body="Fixed in <short-hash>" \
-  --field "in_reply_to=<comment_id>" 2>&1 | cat
-
-# Batch reply to multiple comments
-for id in <id1> <id2> <id3>; do
-  gh api "repos/{owner}/{repo}/pulls/{pr_number}/comments" \
-    --method POST \
-    --field body="Fixed in <short-hash>" \
-    --field "in_reply_to=$id" 2>&1 | cat
-done
-```
+Use the active repository's review-comment follow-up rule for the exact reply command. Prefer
+local scripts or helper tools when they exist. If the repository does not define a helper, use the
+workflow-defined GitHub command that replies to the existing review comment identifier.
 
 ### Resolve Threads via GraphQL
 
-GitHub does not expose thread resolution via the REST API. Use GraphQL.
-
-**Step 1: Fetch thread IDs** (match `databaseId` to REST comment `id`):
-
-```bash
-gh api graphql -f query='
-{
-  repository(owner: "{owner}", name: "{repo}") {
-    pullRequest(number: {pr_number}) {
-      reviewThreads(first: 50) {
-        nodes {
-          id
-          isResolved
-          comments(first: 1) {
-            nodes { databaseId }
-          }
-        }
-      }
-    }
-  }
-}
-' 2>&1 | cat
-```
-
-**Step 2: Resolve each thread:**
-
-```bash
-gh api graphql -f query='
-mutation {
-  resolveReviewThread(input: { threadId: "PRT_..." }) {
-    thread { isResolved }
-  }
-}
-' 2>&1 | cat
-```
-
-**Fallback**: If GraphQL resolution is impractical, the reply alone is sufficient.
-The human reviewer can close threads in the GitHub UI.
+Use the active repository's review-comment follow-up rule for thread resolution. The follow-up tool
+must resolve the review thread when that operation is supported. If thread resolution is not
+available in the current environment, the reply alone is sufficient and the human reviewer can close
+threads in the GitHub UI.
 
 ---
 
@@ -406,13 +356,6 @@ For every comment marked **Won't do / Not applicable** in the triage table:
 1. Post a reply via the same command used in Phase 6, with body `Won't fix`.
 2. No justification or internal reasoning in the reply.
 3. This is done **after all fixes are committed**, in a single pass.
-
-```bash
-gh api "repos/{owner}/{repo}/pulls/{pr_number}/comments" \
-  --method POST \
-  --field body="Won't fix" \
-  --field "in_reply_to=<comment_id>" 2>&1 | cat
-```
 
 ---
 

@@ -34,6 +34,22 @@ The commit message should tell the story behind the change, not narrate the chan
 - Only construct shell commands (`mktemp`, `cat`, `git commit -F`) after the user approves the content.
 - This avoids constant rejection of shell commands and makes the message easy to read and discuss.
 
+### Always Offer Five Alternative Emojis At The Approval Step
+
+Whenever a commit message (or PR title) is presented for approval, also offer
+**five alternative leading emojis** below the message. This lets the user accept
+the wording as-is while swapping the emoji in one step.
+
+- List exactly five alternatives, each a fitting emoji for the actual change
+  with a few words on why it fits.
+- All five must satisfy the emoji-fit and positivity rules in this file and in
+  `25_persist_06_commit-and-pr-title-prefixes.md`. Never propose a risky,
+  negative, or potentially offensive emoji.
+- The emoji already used in the drafted subject is the recommendation; the five
+  alternatives are in addition to it, not a replacement for choosing well first.
+- If the user picks an alternative, reuse the approved wording verbatim and only
+  change the leading emoji.
+
 ---
 
 ## Writing Stance and Language (Mandatory)
@@ -235,6 +251,12 @@ Examples:
 
 The goal is not novelty. The goal is to avoid repetitive, low-signal emoji use
 when a more accurate symbol exists.
+
+Any emoji must carry a positive, lighthearted, or positively-engaging
+association — or at most neutral. Never use an emoji that is risky, negative, or
+that could offend, insult, or demean any person or group. When the most "accurate"
+symbol carries such a risk, choose a positive or neutral alternative instead
+(for example a colourful or upbeat symbol).
 
 ---
 

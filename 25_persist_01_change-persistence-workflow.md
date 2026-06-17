@@ -86,6 +86,31 @@ The two distinct flows:
 - **Review-fix flow**: `commit (user approves message) → push` — automatic after commit message approval inside the review phase
 - **Standard persistence flow**: `commit → ask user → optional push` — review publication is a later phase
 
+## Push Target Must Be Explicit — Never Assume Upstream
+
+Always push with the remote and the branch named explicitly:
+
+```
+git push origin <branch-name>
+```
+
+- **Never** run a bare `git push` and **never** rely on `-u` / tracking / a
+  configured upstream to resolve the destination. The destination must always be
+  stated on the command line.
+- This is mandatory regardless of `push.default`. With `push.default = upstream`
+  (and similar), a bare push — or a push of a branch whose upstream points at the
+  integration branch — sends commits to that upstream, which can land work on
+  `main` instead of the intended feature branch.
+- A branch created from the integration branch (for example
+  `git checkout -b feature/x origin/main`) has its upstream set to `main`. Pushing
+  such a branch without an explicit destination pushes to `main`. Always name the
+  branch: `git push origin feature/x`. When in any doubt that the names could be
+  resolved against an upstream, use the fully explicit colon form
+  `git push origin <local-branch>:refs/heads/<remote-branch>`.
+- Pushing to `main` (or any shared integration branch) is never done by the agent.
+  Combined with the force-flag prohibition below, an accidental push to `main` is
+  treated as a rule violation, not an acceptable outcome.
+
 ## Proactive Process Continuation
 - After completing a task — including addressing review feedback and resolving threads — do not ask the user what to do next.
 - Re-read `AGENTS.md` and the active workflow phase to determine the correct next step, then proceed with it.
