@@ -26,7 +26,7 @@ additions. In that case, use the full feature commit template.
 
 ## Key changes
 - <Problem fixed or improvement made — concept-level, no code>
-- <Each bullet = one fix or closely related group>
+- <Only the most significant fixes; fewer is better. Trivial ones are omitted>
 
 ## Validation / quality
 - **Test focus:** <High-level use cases or behavior areas the tests focused on; no file names or test counts>
@@ -66,6 +66,18 @@ Rules:
 
 ## Rules for Key Changes
 
+### Key means key, not complete
+
+List only what matters most. This is not an inventory of everything the commit
+touched, and a reader should not have to sift the significant from the trivial.
+
+- Fewer bullets is better. Two or three strong ones beat seven that bury them.
+- Leave out anything a reviewer would not care about on its own: a corrected
+  link, a renamed file, a spelling fix, a configuration default. Those ride along
+  in the diff without a mention.
+- Tests are not a key change. Say what they cover under Automated tests in
+  Validation / quality, where that belongs.
+
 ### Concept-level, not code-level
 
 Each bullet describes the **underlying problem fixed or improvement made** — not
@@ -86,7 +98,7 @@ names, method signatures, file paths, or library details.
 
 | ✅ Do | ❌ Don't |
 |---|---|
-| Session fixation prevention enabled, tests added | Added `.sessionFixation().none()` to Spring Security config on sign-in |
+| Session fixation prevention enabled on sign-in | Added `.sessionFixation().none()` to Spring Security config on sign-in |
 | Unauthorized state mapped to known HTTP error | `ApiErrorType.UNAUTHORIZED` added with `statusToErrorType(401)` mapping |
 | API error handling refactored: error code translation utility added | `getApiErrorMessage()` with exhaustive switch over 10 `ApiErrorType` values |
 | i18n keys added for API errors | `common.apiError.*` keys added to `en.json` and `de.json` |

@@ -4,6 +4,21 @@ These rules extend the generic testing standards for Java / Spring Boot projects
 
 ## Test Layers and Expectations
 
+### Profile and Property Safety
+- Spring/JVM tests must not activate runtime profiles such as `prod`, `staging`, `qa`, or `dev`.
+  Use the test profile, a framework test slice, or no explicit profile.
+- Do not import production, staging, QA, or development profile properties into tests to make a
+  behavior reachable. If a test needs a runtime-like contract, set the smallest explicit
+  test-local properties needed for that contract.
+- If a test seems to require a non-test runtime profile, stop and present the case to the human for
+  review before implementing or changing the test.
+- Assertions belong to the layer that can observe the behavior directly:
+  - unit tests: isolated logic
+  - Spring integration tests: application wiring, persistence, server responses, and raw HTTP
+    headers when a live server is used
+  - system/e2e tests: browser behavior, deployed topology, cross-process flows, and frontend/backend
+    interaction
+
 ### Unit Tests
 - Write unit tests for **all core business logic** (services, domain classes, utility functions).
 - Prefer plain JUnit 5 + mocking libraries (e.g., Mockito) **without** starting a Spring context where possible.

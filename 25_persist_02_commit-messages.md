@@ -191,6 +191,19 @@ Less is more — as long as all key ideas are captured, shorter is better.
 
 ---
 
+## Line Width
+
+Wrap body lines at **72 characters**. The subject line stays well under that.
+
+Narrow lines stay readable in primitive tools such as a terminal `git log`, match
+what mailing lists expect, and are what git tooling is built around. Modern tools
+are more forgiving, but the convention costs nothing and keeps the message legible
+everywhere.
+
+Do not wrap a URL or a long path that would break when split.
+
+---
+
 ## Narrative Requirements (Critical)
 
 A high-quality commit message body **must**:
@@ -208,7 +221,7 @@ Low-quality, non-narrative commit messages must never be produced.
 
 ---
 
-## Commit Subject Tense
+## Imperative Mood
 
 Use **imperative / present-tense** commit subjects.
 
@@ -229,6 +242,20 @@ The subject should read like an instruction to the codebase:
 - `add`, not `added`
 - `fix`, not `fixed`
 - `document`, not `documented`
+
+The body uses the same mood. A commit message is attached to a change, not to the
+code the change leaves behind, so write it as if the change is about to be applied
+rather than as a report of what was just done.
+
+Good:
+
+- `Add a public API that accepts contact requests.`
+- `Restrict who can read stored contact details.`
+
+Bad:
+
+- `Added a public API that accepts contact requests.`
+- `This change restricts who can read stored contact details.`
 
 This guidance is compatible with many common Git recommendations and should be
 followed unless a project defines a stricter local convention.
@@ -356,6 +383,71 @@ Follow-up commits within the same PR use the follow-up template.
 
 ---
 
+## Outcome-First Phrasing (Every Section)
+
+Every sentence and bullet leads with the **outcome** — the capability gained, the risk
+removed, the thing a user or system can now do. The mechanism that delivers it comes
+second, if it is named at all.
+
+The shape is: `<outcome>`, optionally followed by `by <means>` / `via <means>`.
+
+This applies to commit messages and pull-request bodies alike, and to every section of
+both.
+
+### Summary
+
+State what the change makes possible, not what was built.
+
+**Good:**
+> Provide an API that serves the public product catalogue.
+
+**Good — outcome plus the means that delivers it:**
+> Enable the marketing contact form by providing a public API that accepts contact
+> requests.
+
+**Bad — names the artifact and stops:**
+> New endpoint for contact requests.
+
+### Context / intent
+
+Lead with the capability the work serves, then what was added to serve it.
+
+**Good — user-facing work:**
+> To give visitors a way to reach us from the marketing page, that page now carries a
+> contact form.
+
+**Good — technical enabler:**
+> To enable the marketing page's contact form, a public API that accepts contact
+> requests was added. It also serves any later flow that needs to capture an enquiry
+> from an unauthenticated visitor.
+
+A technical enabler still has an outcome. When the capability it unlocks does not ship
+in the same change, name that capability and say plainly that it is not in use yet.
+Say whether the new surface is public or authenticated when that distinction carries
+product or security meaning.
+
+### Key changes and every other change detail
+
+Each bullet opens with the outcome, in the same shape. This holds for key changes,
+additional changes, and any other line that describes part of the change.
+
+**Good:**
+- Enable visitors to request contact from the marketing page.
+- Secure the public submission endpoint against automated abuse by limiting how often
+  it can be called.
+- Protect stored contact details by restricting who can read them.
+
+**Bad — leads with the mechanism:**
+- Added a rate limiter to the contact endpoint.
+- New request-size filter.
+- Refactored the contact service.
+
+The outcome must be the first clause. A bullet that opens with "Added", "Introduced",
+"Updated", "Refactored", or the name of a component is written the wrong way round —
+rewrite it so the capability comes first and the means, if it matters, follows.
+
+---
+
 ## Section Guidance
 
 ### Summary — The Product Manager Test
@@ -365,6 +457,45 @@ If your summary requires knowledge of specific classes, frameworks, or file path
 
 Ask yourself: "Would a non-engineer understand what this delivers and why it matters?"
 If no, rewrite it.
+
+#### State the outcome, not the mechanism that produces it
+
+The summary names what is true for the product now. It does not describe how the
+change works, which artifact replaced which, or where something is served from.
+
+**Good:**
+> Visitors get a full marketing page that showcases the features of the application.
+
+**Bad — describes a mechanism:**
+> The new page becomes what visitors see at example.com.
+
+**Bad — names a moving part:**
+> The build output directory is now generated from the compiled application.
+
+Domain names, directory names, and file formats are mechanism. If removing them
+from the sentence destroys its meaning, the sentence was about the mechanism.
+
+#### Say what is newly true, never restate the previous change
+
+Work often lands across several changes in one release. Each summary must claim
+only what **that** change makes true. Restating the outcome an earlier change
+already claimed makes the message read as empty, because the reader has seen the
+claim before and learns nothing.
+
+Before writing the summary of a change that continues earlier work, read the
+previous change's summary and ask: "what can the product do now that it could not
+before this one?" That answer is the summary.
+
+**Example of the failure.** A first change builds a marketing page; its summary
+is "Visitors get a full marketing page." A second change publishes that page and
+adds its first automated tests. Writing "Visitors get the new marketing page"
+again claims an outcome already delivered.
+
+**Good, for the second change:**
+> The new marketing page goes live, protected by the site's first automated tests.
+
+A useful check: if the summary would have been equally true one change ago, it is
+not the summary of this change.
 
 ### Context / intent — Explain Why, Not What Was Excluded
 
@@ -467,8 +598,14 @@ guarantee, not the keystrokes.
 Before finalizing a commit message, verify:
 
 - [ ] Can I explain this commit in one sentence to a product person?
+- [ ] Does the summary state an outcome rather than a mechanism, and would it still mean something with every domain, directory, and file name removed?
+- [ ] Would the summary have been equally true before this change? If yes, it restates earlier work and is not this change's summary.
 - [ ] Is the language at the level of a senior manager briefing product, with no AI vernacular ("lifts", "wires up", "stable anchor"), developer slang ("DX", "first-class", "plumbing"), internal labels ("I9", "M3"), or process meta-commentary ("this commit", "in the next PR")?
 - [ ] Does every Key Changes bullet describe a *user outcome or product capability*, not a file/class/method/route?
+- [ ] Does every bullet open with the outcome, with the mechanism (if named at all) following it — never "Added…", "Refactored…", or a component name first?
+- [ ] For a technical enabler, does the message name the capability it unlocks rather than only the surface it creates?
 - [ ] Does any bullet contain a route path, class name, method name, or HTTP header? If yes, rewrite or remove it.
 - [ ] Would removing any bullet lose information a reviewer needs? If not, remove it.
+- [ ] Is the whole message in the imperative, reading as the change about to be applied rather than a report of what was done?
+- [ ] Are body lines wrapped at 72 characters?
 - [ ] Is the total message under 30 lines?
