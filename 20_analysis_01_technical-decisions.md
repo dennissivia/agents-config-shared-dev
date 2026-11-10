@@ -5,14 +5,16 @@
 - Explain choices such as in-memory vs distributed approaches and why they fit current needs.
 
 ## Decision Records
-- When a task introduces or confirms a meaningful technical decision, check whether the repository has a decision-record system such as ADRs.
-- If such a system exists, record new or newly clarified decisions there rather than leaving the rationale only in chat or commit history.
+- When work introduces or confirms a meaningful technical decision, check the existing ADRs,
+  including recent records and their extension/revision links, before proposing another.
+- Create a new ADR only when the human explicitly requests it. Following an existing
+  decision or clarifying routine implementation does not require another record.
 - Typical candidates include architecture direction, persistence policy, API semantics, data lifecycle, testing strategy, and environment strategy.
 - Do not create decision records for trivial implementation details.
 
 ## Research Decision Workflow
 
-When a task begins as explicit research or investigation and ends with a technical choice,
+When work begins as explicit research or investigation and ends with a technical choice,
 that choice must be treated as a formal decision workflow rather than an implicit agent choice.
 
 Required sequence:
@@ -20,14 +22,14 @@ Required sequence:
 1. investigate the options
 2. summarize the options with balanced pros/cons for the human
 3. pause for the human decision, or for a request for deeper research
-4. once the human chooses, record the outcome in the repository's decision-record system
+4. once the human chooses, agree whether a new ADR is needed; record it only if requested
 5. update the affected implementation plan, roadmap, or agent plan to reflect the decision
 6. only then proceed with implementation
 
 Additional rules:
 
-- Research that concludes with an architectural, dependency, UX-pattern, testing, or
-  implementation-shape choice must produce an ADR when the repository uses ADRs.
+- Research that concludes with an important new decision should surface the need for an
+  ADR; research alone does not authorize creating one.
 - The ADR should capture the options considered, the decision, and the main trade-offs.
 - The affected plan artifact must be updated in the same workflow so implementation starts
   from recorded decisions rather than chat-only conclusions.
@@ -55,6 +57,8 @@ Meaningful implementation work must review relevant decision records twice:
 
 - Re-read the decision records (e.g., ADRs) that constrain the change area before
   coding.
+- Check recent ADRs and follow extension, revision and supersession links in both
+  directions; reading an older record alone does not establish the current policy.
 - Treat this as part of analysis/design, not optional background reading.
 - Typical examples: testing strategy, API semantics, seeding, auth/session rules,
   frontend state patterns.
@@ -65,8 +69,21 @@ Meaningful implementation work must review relevant decision records twice:
   work done.
 - Confirm the implementation still matches the intent of the decision, not just
   the originally planned design.
-- If the implementation clarified or changed a meaningful decision, update the
-  decision record before proposing a commit.
+- If implementation reveals a changed decision, surface it to the human. Do not
+  rewrite historical decision bodies or create another ADR without approval.
+
+### Status and relationship metadata
+
+- Keep historical decision bodies unchanged unless the human explicitly approves
+  a specific in-place revision.
+- When an ADR extends, revises or supersedes another, update Status metadata in
+  both records with reciprocal Markdown links and a concise scope description.
+- Prefer extension or revision when the earlier decision remains applicable.
+  Supersession is for a replaced decision or an explicitly identified part; it
+  must not imply that still-valid portions are obsolete.
+- Record the date and scope of an approved in-place revision under Status.
+- Keep records concise and focused on important decisions. Update only affected
+  ADRs; do not create an index or perform a historical bulk update without a request.
 
 ### 3. Review Triggers
 

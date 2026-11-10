@@ -117,13 +117,13 @@ plan of what gets built, in what order, and at what PR boundaries.
 Each increment entry includes:
 
 - What it delivers (user or system outcome).
-- Which tasks or slices it contains.
+- Which work items (tasks, bugs or other supported types) it contains.
 - Estimated churn and PR boundary rationale (see the repository's
   `local/21_implementation_17_release-increment-task-planning.md`).
 - Dependencies on other increments, if any.
 
 This step translates the architectural alignment into the plannable work queue using
-the canonical Release → Increment → Task hierarchy.
+the canonical Release → Increment → Work item hierarchy.
 
 **Output**: Written to the relevant `docs/planning/` document (new file, or appended
 to an existing version plan).
@@ -138,8 +138,8 @@ a concrete, step-by-step execution plan scoped to that increment only.
 The Agent Plan:
 
 - References the confirmed architecture — no redesign at this phase.
-- Lists each task in implementation order.
-- Identifies the test strategy per task.
+- Lists each work item in implementation order.
+- Identifies the test strategy per work item.
 - Notes any ADRs to re-read before starting (see `20_analysis_01_technical-decisions.md`
   for the ADR double-check rule).
 - Follows the content density and cross-review standards in

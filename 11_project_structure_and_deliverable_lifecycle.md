@@ -1,51 +1,53 @@
-# Project Structure and Deliverable Lifecycle
+# Project Structure and Increment Lifecycle
 
 Defines the canonical hierarchy for organising work and the mandatory gate sequence
-that must run at every deliverable boundary before a commit is made.
+that must run at every increment boundary before a commit is made.
 
 ---
 
 ## Project Hierarchy
 
-```
-Version
-  └── Milestone
-        └── Deliverable
-```
+Release/Version → Increment → Work item
 
-**Version** — A product scope increment with a clear user-facing goal. Defined in
-the product planning docs (`docs/planning/`). Examples: `V0.5-auth`, `V1.0-launch`.
+**Release/Version** — A versioned package of product value containing one or more increments.
 
-**Milestone** — A logical unit within a version. Contains a set of deliverables.
-Defined in the version's implementation plan. Examples: `M1`, `M2`.
+**Increment** — A complete, production-safe shipping unit and the default PR/review
+boundary. It can contain several work items.
 
-**Deliverable** — An observable user or system outcome. Defined in the milestone's
-implementation plan as `Deliverable 1`, `Deliverable 2`, etc.
+**Work item** — One implementation unit, such as a task or bug; it need not ship
+independently. Use “work item” generically, never “task” as an umbrella for bugs.
+
+Ticket type and scheduling are independent. Both tasks and bugs may be captured
+without a release or created directly in a known release/increment. Scheduling
+does not change their type. Moving work out of a release requires explicit
+discussion and approval as an exception, not an automatic workflow.
+
+Historical milestone/deliverable labels are aliases, not additional planning levels.
 
 ---
 
-## Deliverable Lifecycle — Mandatory Sequence
+## Increment Lifecycle — Mandatory Sequence
 
-Every deliverable is a **commit boundary**. After completing the implementation of a
-deliverable, the following gates must run **in order** before any git staging or
-committing:
+Every increment is a **shipping boundary**; work items may share that boundary.
+After completing an increment, the following gates must run **in order** before
+any git staging or committing:
 
 ### Gate 0: Completeness Check (Before Any Gate)
 
-Before running any other gate, verify that **every step of the current deliverable
+Before running any other gate, verify that **every step of the current increment
 is fully implemented** — across all stacks (frontend AND backend).
 
-1. Re-read the deliverable definition in the milestone implementation plan.
+1. Re-read the increment definition in the increment plan.
 2. For each listed step, confirm it exists in the working tree.
 3. If any step is missing (e.g., frontend step skipped while backend was built),
    **HARD STOP** — implement the missing steps before proceeding.
 
-**This applies especially to cross-stack deliverables.** If a deliverable lists both
+**This applies especially to cross-stack increments.** If an increment lists both
 a frontend step and a backend step, both must be complete before committing either.
-Never commit a partial deliverable (e.g., backend only when frontend was specified).
+Never commit a partial increment (e.g., backend only when frontend was specified).
 
 **Why this matters:** Skipping frontend steps inflates PR size, breaks the
-vertical-slice principle, and produces backend-only "deliverables" that cannot be
+vertical-slice principle, and produces backend-only "increments" that cannot be
 demoed or validated end-to-end.
 
 ---
@@ -74,9 +76,9 @@ demoed or validated end-to-end.
 
 Once all gates above pass:
 
-1. **STOP and announce:** "All gates pass for Deliverable N. Ready to stage. Shall I?"
+1. **STOP and announce:** "All gates pass for Increment N. Ready to stage. Shall I?"
 2. **Wait for explicit user confirmation.**
-3. **Stage all deliverable changes:** `git add <files>`
+3. **Stage all increment changes:** `git add <files>`
 4. **Verify staged files:** `git status --short` — confirm all intended files are
    staged (status `A` or `M` in first column), no unexpected files.
 
@@ -92,7 +94,7 @@ the refactor reviewable and reversible.
 With changes safely staged:
 
 - Apply Phase 5 (Refinement & Refactoring) from `10_dev_workflow.md`.
-- Scope: code added or modified in this deliverable only.
+- Scope: code added or modified in this increment only.
 - Keep behaviour identical. Run only the affected tests to verify each change.
 - After the refactoring pass, re-run the full suite (Gate 1) and lint (Gate 2).
 
@@ -103,15 +105,15 @@ With changes safely staged:
 - **STOP:** Propose the commit message as rendered Markdown in chat.
 - **Wait for explicit user approval.**
 - Commit using temp file per `25_persist_01` rules.
-- Announce: "Committed locally. Ready for D(N+1) or should I push?"
+- Announce: "Committed locally. Ready for the next work item or should I push?"
 
 ---
 
 ## PR vs Push
 
-A PR is not required after every deliverable. The default is:
+A PR is not required after every increment. The default is:
 
-- **Commit locally** after each deliverable (mandatory).
+- **Commit locally** after each increment (mandatory).
 - **Push to feature branch** when the user asks, or when accumulated churn warrants
   a review checkpoint per `26_review_01` limits.
 - **Open PR** only when explicitly requested or when a branch is complete.

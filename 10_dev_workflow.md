@@ -1,6 +1,6 @@
 # Development Workflow
 
-This file is the entrypoint for development work. If a separate global package is present (`01–09`), load that first, then apply this workflow and the stage files in numeric order (`20–69`). This workflow ensures clarity, predictability, and safe collaboration. All tasks follow these phases unless explicitly overridden.
+This file is the entrypoint for development work. If a separate global package is present (`01–09`), load that first, then apply this workflow and the stage files in numeric order (`20–69`). This workflow ensures clarity, predictability, and safe collaboration. All work follows these phases unless explicitly overridden.
 
 ---
 
@@ -52,16 +52,16 @@ Purpose:
 - Load the right agent-rule set before any scope interpretation begins.
 
 Inputs:
-- Active task request.
+- Active work request.
 - `.agents/` rule index and phase rules.
 
 Core actions:
 - Re-read `.agents/` rules with priority on planning, analysis, design, quality
 	assurance, and change-persistence rules.
-- Determine which workflow package and prefix range apply to this task.
+- Determine which workflow package and prefix range apply to this work.
 
 Outputs:
-- Confirmed rule baseline for the active task.
+- Confirmed rule baseline for the active work.
 
 Transition to Phase 1:
 - `[AUTO]`
@@ -74,7 +74,7 @@ Purpose:
 - Gather all scope-defining artifacts before planning decisions.
 
 Inputs:
-- User request and current task state.
+- User request and current work state.
 - Existing roadmap/version/increment/plan files.
 - Product notes, ADRs, and technical documentation relevant to scope.
 

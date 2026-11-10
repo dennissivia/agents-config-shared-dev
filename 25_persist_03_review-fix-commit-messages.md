@@ -46,6 +46,10 @@ additions. In that case, use the full feature commit template.
 
 ## Rules for the Summary
 
+Vocabulary follows the kind of change, as set out under Writing Stance in
+`25_persist_02_commit-messages.md`: product language for a user-facing fix,
+technical language for a technical one, precise in either case.
+
 The summary must read as if explaining to an engineering lead or product manager who
 is evaluating the deployment. They should understand what category of concerns were
 addressed without reading the diff or knowing who left the comments.
@@ -91,20 +95,21 @@ names, method signatures, file paths, or library details.
 **Never include:**
 - Class, method, or function names
 - File paths or script names
-- Library-specific type names, annotations, or HTTP status codes
+- Library-specific type names, annotations, or numeric HTTP status codes (name the
+  kind of error response in words instead: "return a conflict error")
 - Shell command fragments or code snippets
 
 ### Do and Don't
 
 | ✅ Do | ❌ Don't |
 |---|---|
-| Session fixation prevention enabled on sign-in | Added `.sessionFixation().none()` to Spring Security config on sign-in |
-| Unauthorized state mapped to known HTTP error | `ApiErrorType.UNAUTHORIZED` added with `statusToErrorType(401)` mapping |
-| API error handling refactored: error code translation utility added | `getApiErrorMessage()` with exhaustive switch over 10 `ApiErrorType` values |
-| i18n keys added for API errors | `common.apiError.*` keys added to `en.json` and `de.json` |
-| Exceptions replaced with result objects in timezone/schedule flow | `Result<void, ApiError>` propagated through `TimezoneBanner` |
-| Coverage tooling improved: reduced execution time and token usage | `bin/run-coverage.bash` redesigned with `--save` flag, replaces `save-coverage.bash` |
-| Diff stats extended with net change column | `bin/git-diff-stats.bash` extended with `±net` column between `-del` and `=churn` |
+| Prevent session fixation on sign-in | Added `.sessionFixation().none()` to Spring Security config on sign-in |
+| Map unauthorized state to a known HTTP error | `ApiErrorType.UNAUTHORIZED` added with `statusToErrorType(401)` mapping |
+| Translate API error codes through a shared utility | `getApiErrorMessage()` with exhaustive switch over 10 `ApiErrorType` values |
+| Localize API error messages | `common.apiError.*` keys added to `en.json` and `de.json` |
+| Return result objects instead of exceptions in the timezone and schedule flow | `Result<void, ApiError>` propagated through `TimezoneBanner` |
+| Cut coverage-tooling execution time and token usage | `bin/run-coverage.bash` redesigned with `--save` flag, replaces `save-coverage.bash` |
+| Report a net-change column in diff stats | `bin/git-diff-stats.bash` extended with `±net` column between `-del` and `=churn` |
 
 ---
 

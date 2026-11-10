@@ -293,6 +293,44 @@ Typical safeguard follow-ups:
 
 ---
 
+## Phase 4.7: Scope Added By The Fixes
+
+Review fixes are meant to correct what the change already does. Sometimes they
+add to it instead: a protection the change did not have, a configuration surface
+it did not expose, a behaviour a reader of the pull request would not expect from
+its description.
+
+Once the approved fixes are complete and before proposing the commit, check what
+the fix set added against what the pull request body claims the change delivers.
+
+Ask, for each fix:
+
+- Does the change now do something the body does not mention?
+- Does the body now claim something the fixes made untrue, or narrower, or wider?
+- Would a reviewer reading only the body be surprised by what is in the diff?
+
+If the answer to any of these is yes, **propose the specific edit to the pull
+request body and wait**. Show the current wording and the replacement, so the
+difference is visible without opening the pull request.
+
+**The human must approve every change to a pull request body.** Detecting the
+need is automatic; making the edit is not. Never edit the body because the check
+found something — the check produces a proposal, and the human decides whether
+the wording changes and how.
+
+When the fixes only correct behaviour the body already describes, say so in one
+line and move on. Most review rounds need no change at all, and saying that
+plainly is more useful than silence.
+
+### Why
+
+A pull request body is written before the review and describes the change as it
+was then. Fixes that add scope leave it quietly wrong, and the body is what the
+merge is recorded as and what anyone reads afterwards. The moment the fixes are
+finished is the only point where the difference is still obvious.
+
+---
+
 ## Phase 5: Commit
 
 Use the standard structured commit template (see
@@ -367,6 +405,8 @@ For every comment marked **Won't do / Not applicable** in the triage table:
 - [ ] All High + Medium applicable comments fixed  
 - [ ] Quality gates pass (tests, lint, format)  
 - [ ] User approved diff before commit  
+- [ ] Scope added by the fixes checked against the pull request body, and any
+      edit proposed to the human and approved before it is made
 - [ ] Commit references addressed comment IDs  
 - [ ] REST reply posted on each fixed comment (`Fixed in <hash>`)  
 - [ ] Thread resolution attempted (GraphQL or noting fallback)  

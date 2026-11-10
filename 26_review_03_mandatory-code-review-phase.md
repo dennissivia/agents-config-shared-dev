@@ -79,6 +79,12 @@ Assessed against `24_qa_06_test-implementation-quality.md`.
   fast-fail style while still proving one focused behaviour?
 - Do setup and support assertions stay out of the way so the core behaviour under
   test is immediately visible?
+- For frontend and end-to-end tests: does every interaction with a
+  JavaScript-driven control wait for a signal the framework produces, and assert
+  the outcome the interaction was meant to cause? A test that only waits for an
+  element to be visible is racing the framework that binds it.
+- Are there fixed waits, raised timeouts, or retried interactions standing in for
+  a condition that should be waited on?
 
 ---
 

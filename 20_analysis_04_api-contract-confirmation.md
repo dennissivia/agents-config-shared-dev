@@ -7,7 +7,7 @@ human before the implementation that depends on them begins.
 
 ## Rule
 
-- Whenever an increment or task introduces or changes an API endpoint's request
+- Whenever an increment or work item introduces or changes an API endpoint's request
   or response shape, write the contract during planning/preparation, not during
   implementation.
 - Present the contract — the concrete payload (example JSON and/or the typed
@@ -16,8 +16,8 @@ human before the implementation that depends on them begins.
 - This is a hard handoff: pause and wait for the human to confirm or adjust the
   contract before writing implementation code against it.
 - Confirm the contract at the **start of the increment plan** when the endpoint
-  is known at that point; otherwise **at the latest at the start of task-plan
-  creation** for the task that implements it. Never defer contract confirmation
+  is known at that point; otherwise **at the latest at the start of work-item plan
+  creation** for the work item that implements it. Never defer contract confirmation
   to implementation.
 
 ## Why

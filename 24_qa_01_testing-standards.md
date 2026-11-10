@@ -94,3 +94,23 @@ Testing ensures correctness, protects refactoring, and prevents regressions.
 - Making tests always pass (e.g., `expect(true).toBe(true)`)
 - Reducing what tests verify
 - Skipping tests with `.skip()` or similar
+
+## A Browser Test That Answers The Request Proves Nothing About It
+
+Where a browser or end-to-end test intercepts the request instead of letting it
+reach a running backend, it covers what the page does with an answer and nothing
+about whether the two sides fit together. The address, the payload shape, the
+origin or authentication rules, and the response shape all stay unverified while
+the suite is green.
+
+**At least one test per user-facing flow must run against the real environment**
+and assert something only the backend can have produced — an identifier it
+generated, a record it stored, a state it changed.
+
+Intercepting is the right tool for branches that are awkward to provoke: a
+refused request, a rate limit, a server that never answers. It is not the right
+tool for the path the feature exists to deliver.
+
+Running the end-to-end suite does not by itself satisfy the requirement to test a
+user-facing change. A suite in which every request is answered by the test is
+still a suite that has never exercised the integration.

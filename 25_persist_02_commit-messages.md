@@ -64,16 +64,72 @@ ADRs, agent plans, implementation plans, and other internal engineering
 artifacts may use more technical language, but commits and PRs always use
 this business-facing stance.
 
-### Required stance
+### The audience never changes; the vocabulary does
 
-- Summarize **capabilities, goals, and intents** — what the product or
-  codebase now has, and why it matters.
-- Use **plain, professional English**: short sentences, clear nouns, common
-  verbs.
-- Describe **value**, not the mechanism that delivers it.
-- Stay at the abstraction level a senior manager uses when briefing product
-  or business — concrete enough to be honest, abstracted enough to be
-  portable across audiences.
+The reader is a stakeholder: someone who owns, reviews, or inherits the work — a
+product owner, an engineering manager, a maintainer returning to it in a year.
+They are not the person who wrote the diff, and they do not have it open.
+
+What changes is the kind of work, and each kind has vocabulary that fits it.
+
+| Kind of change | Summary and context | Key changes |
+|---|---|---|
+| A user-facing feature | Product language: what someone can now do, and why it matters to them. | The capabilities a person gains. |
+| Technical work serving a feature | Product language for the capability it serves, technical language for the work itself. | What the system can now do, tied to the feature it serves. |
+| A technical outcome in its own right — security, rate limiting, logging, quality of service, data migration | The technical concept, named accurately. | What the system now does, and the risk removed or the guarantee established. |
+
+Technical work usually has no user-facing outcome, and inventing one produces
+worse writing than describing the change accurately. Where such a change does
+reach a user, it is normally implicit or visible only when something goes wrong.
+Say that plainly rather than dressing it as a feature.
+
+### Precision is required in every kind
+
+No vague or generic phrasing, whatever the vocabulary. This carries the same
+weight as the forbidden language below.
+
+- Use the system's own nouns for whatever changed: global rate limit counter,
+  per-IP bucket, proof of work, session cookie, database migration, origin
+  check. A name the project already uses is the right word for it.
+- Never replace such a noun with a metaphor or a paraphrase. "The allowance
+  everyone shares" is not a plainer way of writing global rate limit; it is a
+  vaguer one, and it leaves the reader guessing which real thing is meant.
+- Never refer to something the reader has not been given. A bare "the date",
+  "the value", "the field", "the flag" assumes a referent that exists only in
+  the diff, and the reader has not seen the diff. Name it in full wherever it
+  could be ambiguous — "the schedule's start date", not "the date" — including
+  the second and third time it appears. Shortening a reference to something
+  already named in the same paragraph is fine; shortening it to something named
+  nowhere is not.
+- Never settle for a generic verb where a specific one exists. "Improve",
+  "update", "handle", "address", "streamline", "optimise", "enable", "provide",
+  "ensure", "support", "make" and "give" describe nothing on their own. Name the
+  concrete action: add, remove, rename, store, return, show, wait, reject.
+
+### Where the line falls: detail, not vocabulary
+
+Technical vocabulary is not the problem; excessive detail is. Terms such as rate
+limiting, quota, proof of work, migration, and cache are understood by any
+stakeholder and belong in the message.
+
+These stay out whatever the audience, because they describe how rather than
+what:
+
+- class, method, file, and package names
+- route paths, HTTP headers, numeric status codes, database columns
+- implementation mechanics and named internal patterns
+- library and framework internals
+
+When the change is about how the system responds, name the response by its kind in
+words: "return a not found error", "return a conflict error", "show an error
+message". That is the plain description of the behaviour; replacing it with a verb
+that hides it ("report", "answer", "refuse") is the failure, not naming it.
+
+The test is not "would a non-engineer recognise this word", which rejects
+perfectly ordinary nouns like counter and quota. It is:
+
+> Does this word name the actual thing, and could the reader find that thing in
+> the documentation or in the running system?
 
 ### Forbidden language
 
@@ -92,15 +148,23 @@ The following must not appear in commit messages or PR bodies:
   product and the codebase, not about how the work was sliced.
 - **Colloquial verbs that hide the change**: "consistency pass", "cleanup
   sweep", "polish", "tidy".
-
-### Allowed technical vocabulary
-
-Technical terms are allowed when they name a real product or engineering
-capability a senior manager would discuss with product owners (for example
-"rate limiting", "session fixation prevention", "soft delete",
-"accessibility scan", "internationalization coverage"). File names, route
-paths, class and method names, HTTP headers, and database columns remain
-forbidden regardless of audience.
+- **Human acts attributed to the system or the change**: "answer a request",
+  "report an edit as not saved", "ask the member to …", "tell the user", "refuse",
+  "a refusal". A system does not answer, report, ask or refuse; it returns an
+  error response, stores or rejects a value, or shows a message. Write those.
+  Bad: "Report an edit as not saved and ask the member to check it." Good:
+  "Return a conflict error when an edit's write changes nothing, and show a
+  message to check the checklist and make the change again."
+- **Permissive "let" framing**: "Let a user pick a date", "Let the importer
+  skip duplicates", "Allow X to happen". It reads as though the change grants
+  permission for something to occur by itself rather than stating what was
+  built. Name the capability instead: "Add a start date to the schedule form",
+  "Skip duplicates on import".
+- **Invented collective actors**: "a household can", "the team sees", "the
+  family gets". Groups do not click, choose, or read; a person does. Write
+  "users", "a user", or drop the actor entirely — "Selecting a start date now
+  anchors the schedule" — and keep real system actors such as the scheduler,
+  the importer, or the browser, which do act.
 
 ### Fallback
 
@@ -257,6 +321,36 @@ Bad:
 - `Added a public API that accepts contact requests.`
 - `This change restricts who can read stored contact details.`
 
+### Active Voice
+
+Write in the active voice, with the change itself as the actor. Do not describe the
+system as if it changed on its own, and do not hide the actor behind a passive
+construction. This holds unless the user explicitly asks for different phrasing.
+
+Good:
+
+- `Implement Y to make X be Z.`
+- `Add capability A to system B.`
+- `Implement new rules for X so it does Y.`
+
+Bad:
+
+- `X becomes Z.`
+- `Y gains Z.`
+- `Support for Z was added to Y.`
+- `The page now carries a contact form.`
+
+The test: name the verb the change performs and the thing it acts on. If the
+sentence has no actor, or the system is the subject of a vague state change
+("becomes", "gains", "carries"), rewrite it.
+
+The change acts on the codebase: it adds, removes, renames, returns, stores. It does
+not act like a person. When a sentence is about what the running system does after
+the change, give the system a concrete verb in a clause that follows the change's
+verb: "Return a not found error when the checklist no longer exists", not "Answer a
+missing checklist with not found". Never pick a verb only so that a sentence can
+open with an outcome.
+
 This guidance is compatible with many common Git recommendations and should be
 followed unless a project defines a stricter local convention.
 
@@ -386,10 +480,19 @@ Follow-up commits within the same PR use the follow-up template.
 ## Outcome-First Phrasing (Every Section)
 
 Every sentence and bullet leads with the **outcome** — the capability gained, the risk
-removed, the thing a user or system can now do. The mechanism that delivers it comes
-second, if it is named at all.
+removed, the guarantee established. The mechanism that delivers it follows, and is
+named whenever naming it tells the reader something they need.
+
+This holds for technical changes as much as for features. Leading with the mechanism
+and trailing the purpose is the common way to get it backwards.
 
 The shape is: `<outcome>`, optionally followed by `by <means>` / `via <means>`.
+
+Outcome-first is about order, not about inventing a verb. When no plain verb puts the
+outcome first, state what the change does in plain words and follow it with why it
+matters: "Return a conflict error when an edit's write changes nothing, so a lost
+edit is not shown as saved." A sentence that opens with a made-up action ("Report an
+edit as not saved", "Open checklists to collaborators") fails both rules.
 
 This applies to commit messages and pull-request bodies alike, and to every section of
 both.
@@ -399,27 +502,34 @@ both.
 State what the change makes possible, not what was built.
 
 **Good:**
-> Provide an API that serves the public product catalogue.
+> Add a public API that serves the product catalogue.
 
 **Good — outcome plus the means that delivers it:**
-> Enable the marketing contact form by providing a public API that accepts contact
-> requests.
+> Add a public API that accepts contact requests, for the contact form on the
+> marketing page.
+
+**Good — a technical change, outcome first and the technique named:**
+> Reduce the risk of automated abuse by adding bucket-based rate limiting to the
+> public form routes.
+
+**Bad — mechanism first, purpose trailing:**
+> Implement rate limiting in order to avoid abuse.
 
 **Bad — names the artifact and stops:**
 > New endpoint for contact requests.
 
 ### Context / intent
 
-Lead with the capability the work serves, then what was added to serve it.
+Lead with the capability the work serves, then what the change adds to serve it.
 
 **Good — user-facing work:**
-> To give visitors a way to reach us from the marketing page, that page now carries a
-> contact form.
+> Add a contact form to the marketing page, so visitors can reach us without an
+> account.
 
 **Good — technical enabler:**
-> To enable the marketing page's contact form, a public API that accepts contact
-> requests was added. It also serves any later flow that needs to capture an enquiry
-> from an unauthenticated visitor.
+> Add a public API that accepts contact requests, for the marketing page's contact
+> form. The same API serves any later flow that captures an enquiry from an
+> unauthenticated visitor.
 
 A technical enabler still has an outcome. When the capability it unlocks does not ship
 in the same change, name that capability and say plainly that it is not in use yet.
@@ -432,7 +542,7 @@ Each bullet opens with the outcome, in the same shape. This holds for key change
 additional changes, and any other line that describes part of the change.
 
 **Good:**
-- Enable visitors to request contact from the marketing page.
+- Add a contact form to the marketing page.
 - Secure the public submission endpoint against automated abuse by limiting how often
   it can be called.
 - Protect stored contact details by restricting who can read them.
@@ -442,21 +552,47 @@ additional changes, and any other line that describes part of the change.
 - New request-size filter.
 - Refactored the contact service.
 
-The outcome must be the first clause. A bullet that opens with "Added", "Introduced",
-"Updated", "Refactored", or the name of a component is written the wrong way round —
-rewrite it so the capability comes first and the means, if it matters, follows.
+The outcome comes first. A bullet written in the past tense ("Added", "Refactored"), or
+whose verb acts on an internal mechanism instead of on what the reader can see or rely
+on, is written the wrong way round. Rewrite it with a plain imperative verb, and name
+the means afterwards only if it matters. Do not invent a verb to achieve the order; see
+the rule above.
+
+### When the deliverable is a definition
+
+Rule sets, workflows, specifications, ADRs, and documentation deliver a
+definition. The definition is the outcome. There is no separate capability
+behind it, because nothing changes until someone applies it.
+
+Say what the change defines and how far the definition reaches.
+
+**Good:**
+- Define the lifecycle: ideation, research, writing, verification, release,
+  distribution, assessment, and maintenance.
+- Define four human review gates and what each one approves.
+- Define the artifact layout that separates research from the published text.
+
+**Bad — states an effect the change does not yet have:**
+- Hold publication behind four explicit approvals.
+- Keep claims traceable by requiring a durable source record.
+
+The bad form claims a behavior change that has not happened. Name the scope of
+what is defined and let the reader infer the effect.
 
 ---
 
 ## Section Guidance
 
-### Summary — The Product Manager Test
+### Summary — The Stakeholder Test
 
-State the outcome in a way a **product manager** would understand.
-If your summary requires knowledge of specific classes, frameworks, or file paths, rewrite it.
+State the outcome in the vocabulary that fits the kind of change, and state it
+precisely. If the summary needs a class, a framework, or a file path to make sense,
+rewrite it.
 
-Ask yourself: "Would a non-engineer understand what this delivers and why it matters?"
-If no, rewrite it.
+Ask: "Would someone who owns this work, but has not read the diff, know what changed
+and why it matters?" If no, rewrite it. Do not ask whether every word would be
+familiar to a non-engineer — that question drives out accurate nouns like counter,
+quota, and migration, and what replaces them is always vaguer.
 
 #### State the outcome, not the mechanism that produces it
 
@@ -464,7 +600,7 @@ The summary names what is true for the product now. It does not describe how the
 change works, which artifact replaced which, or where something is served from.
 
 **Good:**
-> Visitors get a full marketing page that showcases the features of the application.
+> Showcase the application's features to visitors with a full marketing page.
 
 **Bad — describes a mechanism:**
 > The new page becomes what visitors see at example.com.
@@ -474,6 +610,9 @@ change works, which artifact replaced which, or where something is served from.
 
 Domain names, directory names, and file formats are mechanism. If removing them
 from the sentence destroys its meaning, the sentence was about the mechanism.
+
+This is not a licence to remove technical nouns. The name of a control, a limit, or
+a stored thing is what the sentence is about, not how it is built.
 
 #### Say what is newly true, never restate the previous change
 
@@ -487,12 +626,13 @@ previous change's summary and ask: "what can the product do now that it could no
 before this one?" That answer is the summary.
 
 **Example of the failure.** A first change builds a marketing page; its summary
-is "Visitors get a full marketing page." A second change publishes that page and
-adds its first automated tests. Writing "Visitors get the new marketing page"
-again claims an outcome already delivered.
+is "Showcase the application's features with a full marketing page." A second change
+publishes that page and adds its first automated tests. Repeating the first summary
+claims an outcome already delivered.
 
 **Good, for the second change:**
-> The new marketing page goes live, protected by the site's first automated tests.
+> Publish the new marketing page and protect it with the site's first automated
+> tests.
 
 A useful check: if the summary would have been equally true one change ago, it is
 not the summary of this change.
@@ -524,37 +664,61 @@ Do not write this section as a contrast against alternatives or exclusions.
 **Bad:**
 > We intentionally did not adopt a bigger architectural change here.
 
-### Key Changes — Features and User Outcomes, Not Code
+### Key Changes — What The Work Delivers, Not How It Is Built
 
-Key changes describe **what users or the product can now do** — not what files changed or
-how the code works. Write as if explaining to a product owner, not a code reviewer.
+Key changes describe what the product or the system can now do. They never describe
+which files changed or how the code is arranged. The vocabulary follows the kind of
+change, as set out under Writing Stance.
 
-**Default: product language.** Technical language is only acceptable when:
-- The change is infrastructure with no user-facing equivalent (e.g., "Rate limiting on sign-in to prevent abuse")
-- The change is security-critical and the nature of the protection is the point (e.g., "Session fixation prevention on sign-in")
-- The audience is explicitly engineers (e.g., a pure refactor or migration)
+**For a user-facing feature**, each bullet names a capability a person gains.
 
-**Never acceptable in key changes:**
-- API route paths (`/api/auth/start`)
-- Class or method names (`AuthController`, `findByEmail()`)
-- File names or packages
-- HTTP status codes or headers
-- Database column or table names
-- Framework or library internals
+> Add sign-in with an email address alone, with no password to remember.
 
-**Group by user feature or outcome**, not by layer (backend/frontend/test).
+**For technical work that serves a feature**, each bullet names what the system can
+now do, and ties it to the capability it serves.
 
-**Good:** "Users can sign in with just their email — no password needed"
-**Good:** "Rate limiting on sign-in to prevent abuse"
-**Acceptable:** "Session fixation prevention on authentication"
-**Bad:** "Added POST /api/auth/start endpoint with Bucket4j rate limiting"
-**Bad:** "AuthController now uses tryConsumeAndReturnRemaining for Retry-After header"
-**Bad:** "Frontend httpClient now uses credentials: include"
+> Serve the household roster from one query so the members screen loads in a single
+> request.
 
-If a bullet would make sense only to someone who has read the diff, it is too technical.
-Rewrite it as the *outcome* that diff enables.
+**For a technical outcome in its own right**, each bullet names the concept
+accurately and states the risk removed or the guarantee established. Do not invent
+a user-facing outcome that the change does not deliver.
 
-**Group** related work into one bullet per theme. One bullet per file or class is always wrong.
+> Reduce the risk of automated abuse by adding bucket-based rate limiting to the
+> public form routes.
+
+> Prevent session fixation on sign-in, so a session identifier issued before
+> authentication cannot be reused after it.
+
+> Increase the global rate limit for contact messages to a level suitable for
+> production traffic.
+
+**Never acceptable in key changes**, whatever the kind:
+
+- class, method, file, or package names
+- route paths, HTTP headers, numeric status codes, database columns
+- library and framework internals
+- vague or generic phrasing in place of the name of the thing that changed
+
+**Bad — names the code rather than the work:**
+> Added POST /api/auth/start endpoint with Bucket4j rate limiting.
+
+**Bad — describes the mechanics:**
+> AuthController now uses tryConsumeAndReturnRemaining for the Retry-After header.
+
+**Bad — replaces the noun with a metaphor:**
+> Keep the allowance every visitor shares out of reach of a request that paid
+> nothing.
+
+That last one is the failure this section exists to prevent. It is not plainer than
+naming the global rate limit counter; it is vaguer, and the reader cannot tell
+whether the writer knew which control was meant.
+
+**Group by capability or outcome**, not by layer. One bullet per file or class is
+always wrong.
+
+If a bullet would only make sense to someone who has read the diff, it is describing
+the code. Rewrite it as what the diff achieves.
 
 ### Additional Changes — Out-of-Band Work Only
 
@@ -597,13 +761,19 @@ guarantee, not the keystrokes.
 
 Before finalizing a commit message, verify:
 
-- [ ] Can I explain this commit in one sentence to a product person?
+- [ ] Have I picked the vocabulary from the kind of change — product language for a user-facing feature, technical language for a technical outcome — rather than defaulting to one of them?
+- [ ] Would someone who owns this work, but has not read the diff, know what changed and why it matters?
 - [ ] Does the summary state an outcome rather than a mechanism, and would it still mean something with every domain, directory, and file name removed?
 - [ ] Would the summary have been equally true before this change? If yes, it restates earlier work and is not this change's summary.
-- [ ] Is the language at the level of a senior manager briefing product, with no AI vernacular ("lifts", "wires up", "stable anchor"), developer slang ("DX", "first-class", "plumbing"), internal labels ("I9", "M3"), or process meta-commentary ("this commit", "in the next PR")?
-- [ ] Does every Key Changes bullet describe a *user outcome or product capability*, not a file/class/method/route?
-- [ ] Does every bullet open with the outcome, with the mechanism (if named at all) following it — never "Added…", "Refactored…", or a component name first?
+- [ ] Is the language free of AI vernacular ("lifts", "wires up", "stable anchor"), developer slang ("DX", "first-class", "plumbing"), internal labels ("I9", "M3"), or process meta-commentary ("this commit", "in the next PR")?
+- [ ] Does every Key Changes bullet describe what the work delivers, not which files changed or how the code is arranged?
+- [ ] Does every noun name the actual thing — the counter, the limit, the proof, the migration — with no metaphor or paraphrase standing in for it?
+- [ ] Is every verb specific? "Improve", "update", "handle", "address", "streamline", and "optimise" describe nothing on their own.
+- [ ] For a technical change, have I resisted inventing a user-facing outcome it does not deliver?
+- [ ] Does every bullet open with the outcome, with the mechanism following it — never past tense ("Added…", "Refactored…"), a bare component name first, or the purpose trailing after the mechanism?
+- [ ] Is every sentence active, with the change as the actor — no "X becomes…", "Y gains…", or "…was added"?
 - [ ] For a technical enabler, does the message name the capability it unlocks rather than only the surface it creates?
+- [ ] For a definition change (rules, workflow, spec, docs), does each bullet name what the change defines and how far it reaches, rather than an effect that only appears once someone applies it?
 - [ ] Does any bullet contain a route path, class name, method name, or HTTP header? If yes, rewrite or remove it.
 - [ ] Would removing any bullet lose information a reviewer needs? If not, remove it.
 - [ ] Is the whole message in the imperative, reading as the change about to be applied rather than a report of what was done?

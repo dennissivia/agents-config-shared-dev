@@ -48,8 +48,8 @@ Avoid special characters that require shell escaping.
 
 ## Commit Granularity — Per Logical Unit
 - Commit when completing a **logical unit of work** (story-sized), not after every small change.
-- For planned work (implementation plans, checklists): commit when completing an entire **subheading section** with all its nested tasks.
-  - Example: "Project Initialization" with 5-6 sub-tasks = 1 commit when all are done.
+- For planned work (implementation plans, checklists): commit when completing an entire **subheading section** with all its nested work items.
+  - Example: "Project Initialization" with 5-6 work items = 1 commit when all are done.
   - Example: "Dependencies" section = 1 commit when all dependency updates are complete.
 - For unplanned work or fixes: commit when the feature/fix is complete and working.
 - **Before committing**, announce completion and ask: "We finished [section/feature]. Should I commit this now?"
@@ -112,14 +112,14 @@ git push origin <branch-name>
   treated as a rule violation, not an acceptable outcome.
 
 ## Proactive Process Continuation
-- After completing a task — including addressing review feedback and resolving threads — do not ask the user what to do next.
+- After completing a work item — including addressing review feedback and resolving threads — do not ask the user what to do next.
 - Re-read `AGENTS.md` and the active workflow phase to determine the correct next step, then proceed with it.
 - Only hand back to the user at a defined hard-stop point (user approval required, destructive action, ambiguous requirement) or at the end of a workflow phase.
 - A question like "Would you like to merge?" is always wrong — the agent never merges and the next step is defined by the workflow, not by asking.
 
 ## Change Persistence Flow
-1. **Work through planned tasks** until reaching a logical completion point (e.g., entire subheading done).
-2. **Announce completion**: "Finished [section name]. All [X] tasks complete. Should I commit this?"
+1. **Work through planned work items** until reaching a logical completion point (e.g., entire subheading done).
+2. **Announce completion**: "Finished [section name]. All [X] work items complete. Should I commit this?"
 3. **Wait for user confirmation** to proceed with commit.
 4. **Stage the files**: `git add <files>` (only files related to this logical unit).
    - **Already-staged deletions**: Files removed earlier via `git rm` are already in the index.
